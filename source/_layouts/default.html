@@ -1,18 +1,17 @@
+---
+sidebar: false
+---
 {% capture root_url %}{{ site.root | strip_slash }}{% endcapture %}
-<!doctype html>
-<html>
-  {% include head.html %}
-  <body>
-    <header>
-      <nav>
-        <h3>
-          <a href="{{ root_url }}/">Блог</a>
-          <a href="{{ root_url }}/blog/archives">Архивы</a>
-          <a href="{{ root_url }}/about">О</a>
-        </h3>
-      </nav>
-    </header>
-    {{ content | expand_urls: root_url }}
-    {% include footer.html %}
-  </body>
+{% include head.html %}
+<body {% if page.body_id %} id="{{ page.body_id }}" {% endif %} {% if page.sidebar == false %} class="no-sidebar" {% endif %} {% if page.sidebar == 'collapse' or site.sidebar == 'collapse' %} class="collapse-sidebar sidebar-footer" {% endif %}>
+  <header role="banner">{% include header.html %}</header>
+  <nav role="navigation">{% include navigation.html %}</nav>
+  <div id="main">
+    <div id="content">
+      {{ content | expand_urls: root_url }}
+    </div>
+  </div>
+  <footer role="contentinfo">{% include footer.html %}</footer>
+  {% include after_footer.html %}
+</body>
 </html>
