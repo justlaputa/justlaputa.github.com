@@ -1,0 +1,323 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Newly Install Ubuntu - Coding in the Sky</title>
+  <meta name="author" content="laputa">
+
+  
+  <meta name="description" content="Replace my work environment to Ubuntu Just some notes for my newly installed Ubuntu Linux configuration, use it if this helps. install ubuntu and &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://laputa.io/blog/2012/07/30/newly-install-ubuntu">
+  <link href="/favicon.ico" rel="icon">
+  
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Coding in the Sky" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   class="no-sidebar"  >
+  <header role="banner"><hgroup>
+  <h1>Coding in the Sky</h1>
+  
+    <h2><a href="/">Never wait</a></h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation">
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:laputa.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Newly Install Ubuntu</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-07-30T00:00:00+09:00" pubdate data-updated="true">Jul 30<span>th</span>, 2012</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><h1>Replace my work environment to Ubuntu</h1>
+
+<p>Just some notes for my newly installed Ubuntu Linux configuration, use it if this helps.</p>
+
+<!--more-->
+
+
+<h2>install ubuntu and upgrade</h2>
+
+<p>I installed <a href="http://www.ubuntu.com/">Ubuntu 12.04</a> using live usb, createed by <a href="http://www.linuxliveusb.com/">LinuxLive USB Creator</a>, after install:</p>
+
+<pre><code>sudo apt-get update
+sudo apt-get upgrade
+</code></pre>
+
+<h2>System config</h2>
+
+<h3>add user to sudo</h3>
+
+<p>Don&rsquo;t know why, in Ubuntu 12.04 you should add the username at the last line, otherwise it won&rsquo;t work</p>
+
+<pre><code>sudo visudo
+# add at bottom line
+username  ALL=(ALL)NOPASSWD:ALL
+</code></pre>
+
+<h3>disable ALT key shortcut</h3>
+
+<p>Sometimes it is annoying to see the HUD window when pressing ALT key, disable like this:</p>
+
+<pre><code>Settings-&gt;keyboard-&gt;shortcuts-&gt;key to show the HUD-&gt;(press backspace to disable)
+</code></pre>
+
+<h3>disable ALT key on gnome-terminal</h3>
+
+<p>I use zsh and emacs key-binding, so I use alt key a lot, but this is bind to show Menu item in gnome-terminal, disable it like this:</p>
+
+<pre><code>Open gnome-terminal:
+Edit-&gt;Keyboard Shortcuts-&gt;Uncheck menu access keys
+</code></pre>
+
+<h3>change ubuntu tooltip color</h3>
+
+<p>By default, the tooltip window color is white-on-black, which is not so cheerful, especially when you are using Eclipse. Change the color to black-on-yellow like this:</p>
+
+<pre><code>vim /usr/share/themes/Ambiance/gtk-2.0/gtkrc
+gtk-color-scheme = "base_color:#ffffff\nfg_color:#4c4c4c\ntooltip_fg_color:#000000\nselected_bg_color:#f07746\nselected_fg_color:#FFFFFF\ntext_color:#3C3C3C\nbg_color:#F2F1F0\ntooltip_bg_color:#ffffaf\nlink_color:#DD4814"
+</code></pre>
+
+<p>Note that <code>Ambiance</code> is the default gtk color theme, if you are using other theme, edit the corresponding <code>gtkrc</code> file. Log out or restart to see the change.</p>
+
+<h3>auto hide launcher</h3>
+
+<pre><code>Settings-&gt;Appearance-&gt;Behavior-&gt;turn on auto hide
+</code></pre>
+
+<h2>Software</h2>
+
+<h3>common:</h3>
+
+<pre><code>sudo apt-get install vim emacs emacs-goodies-el zsh tmux
+## if you use zsh
+chsh -s /bin/zsh
+</code></pre>
+
+<h3>git</h3>
+
+<pre><code>sudo apt-get install git gitk
+git config --global user.name my_name
+git config --global user.email my_name@some.mail.com
+git config --global color.ui auto
+</code></pre>
+
+<p>I host my home config files on <a href="https://github.com/justlaputa">github</a>, so add this to my home directory</p>
+
+<pre><code>cd ~
+git init
+git remote add origin git@github.com:justlaputa/home-config.git
+git fetch origin
+git checkout -t origin/master
+</code></pre>
+
+<h3>maven</h3>
+
+<pre><code>sudo apt-get install maven
+</code></pre>
+
+<h3>chrome</h3>
+
+<p>Download deb file from google <a href="https://www.google.com/chrome/">official site</a>, or if you want to use unstable release, download from <a href="http://www.chromium.org/getting-involved/dev-channel/">Chrome Release Channel</a>, double click the deb file, it will be installed automatically.</p>
+
+<h3>java</h3>
+
+<p>   download from oracle <a href="http://www.oracle.com/technetwork/java/javase/downloads/index.html">jdk site</a>, see this <a href="https://help.ubuntu.com/community/Java#Oracle_.28Sun.29_Java_6">tutorial</a> to config java</p>
+
+<pre><code>sudo sh jdk-6u33-linux-i586.bin
+sudo mv jdk1.6.0_33 /usr/java
+sudo ln -s jdk1.6.0_33 default
+</code></pre>
+
+<p> config environment variable in your bash config file(or zsh profile)</p>
+
+<pre><code>vim ~/.baserc
+JAVA_HOME=/usr/java/default
+export JAVA_HOME
+</code></pre>
+
+<p> config java</p>
+
+<pre><code>sudo update-alternatives --install "/usr/bin/java" "java" "/usr/java/default/bin/java" 1
+sudo update-alternatives --config java
+(select 1)
+</code></pre>
+
+<p> do the same to <strong>javac</strong>, <strong>javasw</strong>, <strong>libjavaplugin.so</strong>, see the above link, then check java version:</p>
+
+<pre><code> java -version
+ javac -version
+</code></pre>
+
+<h3>eclipse</h3>
+
+<p> download from <a href="http://eclipse.org/downloads/">official site</a></p>
+
+<pre><code>mkdir ~/dev
+cd ~/dev
+tar xzf ~/Downloads/eclipse-jee-juno-linux-gtk.tar.gz
+</code></pre>
+
+<h4>eclipse plugins</h4>
+
+<ul>
+<li><a href="http://wiki.eclipse.org/Jetty_WTP_Plugin/Jetty_WTP_Install">jetty wtp</a></li>
+</ul>
+
+
+<h2>Other software</h2>
+
+<h3>fcitx &ndash; input method</h3>
+
+<pre><code>sudo apt-get install fcitx
+</code></pre>
+
+<p>open <strong>Input Method Swithcher</strong>, and select fcitx, re-login or restart.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn"><a href="/about" title="About the author (laputa)" rel="author">laputa</a></span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-07-30T00:00:00+09:00" pubdate data-updated="true">Jul 30<span>th</span>, 2012</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/linux/'>linux</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://laputa.io/blog/2012/07/30/newly-install-ubuntu/" data-via="justlaputa" data-counturl="http://laputa.io/blog/2012/07/30/newly-install-ubuntu/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2012/07/11/a-simple-git-cheat-sheet-and-tips/" title="Previous Post: A simple Git cheat sheet and tips">&laquo; A simple Git cheat sheet and tips</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2012/08/05/buy-hhkb/" title="next Post: Buy HHKB">Buy HHKB &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - laputa -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

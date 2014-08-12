@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: cheetsheet | Coding in the Sky]]></title>
+  <link href="http://laputa.io/blog/categories/cheetsheet/atom.xml" rel="self"/>
+  <link href="http://laputa.io/"/>
+  <updated>2014-08-12T17:05:25+09:00</updated>
+  <id>http://laputa.io/</id>
+  <author>
+    <name><![CDATA[laputa]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[A simple Git cheat sheet and tips]]></title>
+    <link href="http://laputa.io/blog/2012/07/11/a-simple-git-cheat-sheet-and-tips/"/>
+    <updated>2012-07-11T00:00:00+09:00</updated>
+    <id>http://laputa.io/blog/2012/07/11/a-simple-git-cheat-sheet-and-tips</id>
+    <content type="html"><![CDATA[<p>Here is a simple Git cheat sheet and I will update this when I find new ones.</p>
+
+<!--more-->
+
+
+<h2>Cheat Sheet:</h2>
+
+<h3>config:</h3>
+
+<pre><code> $ git config --global user.name "John Doe"
+ $ git config --global user.email johndoe@example.com
+</code></pre>
+
+<p>   this will store your identity in <em>~/.gitconfig</em>, use <code>--system</code> to store in <em>/etc/gitconfig</em>, use <code>--local</code> to specify a per-repository configuration, which stores in <em>.git/config</em>.</p>
+
+<h3>log</h3>
+
+<pre><code>| git log                                           | view commit log                    |
+| git log -p -2                                     | show patch of last 2 commit        |
+| git log --stat                                    | show simple state                  |
+| git log --pretty=oneline                          | show in other formats              |
+| git log --graph --all --decorate --pretty=oneline | show all branch commits with graph |
+</code></pre>
+
+<h3>undo things</h3>
+
+<pre><code>| git commit --amend       | this will overwrite the last commit |
+| git reset HEAD~1         | discard last commit                 |
+| git reset HEAD filename  | unstage a file                      |
+| git checkout -- filename | undo modified file                  |
+</code></pre>
+
+<h3>remote</h3>
+
+<pre><code>| git remote -v                    | show remote repository  |
+| git remote add [shortname] [url] | add remote repository   |
+| git fetch [remote]               | fetch remote            |
+| git remote show [shortname]      | show remote infomation  |
+| git remote rename [from] [to]    | rename remote shortname |
+| git remote rm [remote]           | remove remote           |
+</code></pre>
+
+<h2>Tricks &amp; Tips</h2>
+
+<h3>clone into an existing directory</h3>
+
+<p>clone a repo into an existing directory,</p>
+
+<pre><code>$ cd PATH/YOU/WANT/TO/PUT/GIT/FILES
+$ git init
+$ git remote add origin git://remote.repo.url.path
+$ git fetch
+$ git checkout -t origin/master
+</code></pre>
+
+<p><code>fetch</code> will get all remote branches to local, but we still need the <code>checkout</code> command to switch to a specific branch,  <code>-t</code> implies <code>-b</code>, which tells git to create a local <strong>master</strong> branch and make it to track the remote master branch, which is <strong>origin/master</strong>.</p>
+
+<h3>view the history of a single file</h3>
+
+<pre><code>$ git log -p filename
+$ git whatchanged -p filename
+
+$ git log -p --follow filename
+$ git blame filename
+
+$ gitk filename
+</code></pre>
+
+<h3>checkout a single file from another branch</h3>
+
+<pre><code>$ git checkout branch_1 -- path/to/file
+</code></pre>
+
+<h3>revert to previous commit/discard current commit</h3>
+
+<p>  if you doesn&rsquo;t push your commit:</p>
+
+<pre><code>git reset --hard HEAD~1
+</code></pre>
+
+<p>  if you already push your commit:</p>
+
+<pre><code>git revert HEAD
+</code></pre>
+
+<h3>rewrite last commit message</h3>
+
+<p>  see this<a href="http://stackoverflow.com/questions/179123/how-do-i-edit-an-incorrect-commit-message-in-git">stackoverflow questions</a></p>
+
+<pre><code>git commit --amend -m "New commit message"
+</code></pre>
+
+<h3>discard all modify</h3>
+
+<pre><code>git checkout .
+</code></pre>
+
+<h3>working with remotes</h3>
+
+<p>  create remote branch</p>
+
+<pre><code>$ git push REMOTENAME BRANCHNAME
+</code></pre>
+
+<p>  delete remote branch</p>
+
+<pre><code>$ git push REMOTENAME :BRANCHNAME
+</code></pre>
+
+<p>  pushing tags</p>
+
+<pre><code>$ git push REMOTENAME TAGNAME
+$ git push REMOTENAME BRANCHNAME --tags
+</code></pre>
+
+<p>  push to multiple remotes at the same time</p>
+
+<pre><code>$ vim .git/config
+[remote "all"]
+url = git@github.com:luoshupeng/commonuseppa.git
+url = git@gitcafe.com:chinesedragon/commonuseppa.git
+url = chinesedragon@gitcd.com:/commonuseppa
+$ git push all
+</code></pre>
+
+<p>this will push to all urls</p>
+
+<h3>show/hide untracked files</h3>
+
+<pre><code>$ git status -u   #show only untracked files
+$ git status -uno #don't show untracked files
+$ git config status.showuntrackedfiles no
+
+# List git-ignored files
+$ git ls-files . --ignored --exclude-standard --others
+
+# List untracked files
+$ git ls-files . --exclude-standard --others
+</code></pre>
+
+<h3>checkout single file from stash</h3>
+
+<p>  see more <a href="http://stackoverflow.com/questions/1105253/how-would-i-extract-a-single-file-or-changes-to-a-file-from-a-git-stash">here</a></p>
+
+<pre><code>$ git checkout stash@{0} -- &lt;filename&gt;
+</code></pre>
+]]></content>
+  </entry>
+  
+</feed>

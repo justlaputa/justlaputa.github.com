@@ -1,0 +1,270 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Switch to octpress - Coding in the Sky</title>
+  <meta name="author" content="laputa">
+
+  
+  <meta name="description" content="Trying to switch blog generator from pelican to octpress. And I have created a little ruby script to convert pelican markdown post to octpress post. &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://laputa.io/blog/2012/10/14/switch-to-octpress">
+  <link href="/favicon.ico" rel="icon">
+  
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Coding in the Sky" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   class="no-sidebar"  >
+  <header role="banner"><hgroup>
+  <h1>Coding in the Sky</h1>
+  
+    <h2><a href="/">Never wait</a></h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation">
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:laputa.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Switch to Octpress</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-10-14T00:09:00+09:00" pubdate data-updated="true">Oct 14<span>th</span>, 2012</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>Trying to switch blog generator from pelican to octpress.</p>
+
+<p>And I have created a little ruby script to convert pelican markdown post to octpress post. Which actually converts the post head like:</p>
+
+<!--more-->
+
+
+<p>In pelican:</p>
+
+<pre><code>Date: 2012-09-02    
+Title: Using Awesome in Ubuntu 12.04  
+Category: Dev  
+Tags: ubuntu, awesome, wm, linux  
+Slug: awesome-on-ubuntu
+Lang: en  
+Author: laputa  
+</code></pre>
+
+<p>to in Octpress:</p>
+
+<pre><code>---
+layout: post
+title: "Using Awesome in Ubuntu 12.04"
+date: 2012-09-02
+comments: true
+categories: Dev
+tags: [ubuntu, awesome, wm, linux]
+---
+</code></pre>
+
+<p>and also copy the file to YYYY-MM-DD-Title.markdown as Jekyll requires.</p>
+
+<p>Here is the script, a little ugly, but can be used:</p>
+
+<p><code>convert.rb:</code></p>
+
+<pre><code>#!/usr/bin/env ruby
+
+require 'fileutils'
+
+tmpFile = open("tmp-file", "w")
+tmpFile.puts "---"
+tmpFile.puts "layout: post"
+
+open(ARGV[0]) { |file|
+  inHead = true
+  inContent = false
+  date = "2012-10-14"
+  title = "tmp-file"
+  categories = "dev"
+  tags = ""
+  file.readlines.each{ |line|
+    if line.start_with?("Date:")
+      date = line.split(":")[1].strip
+    elsif line.start_with?("Title:")
+      title = line.split(":")[1].strip
+    elsif line.start_with?("Category:")
+      categories = line.split(":")[1].strip
+    elsif line.start_with?("Tags:")
+      tags = line.split(":")[1].strip
+    elsif line.match(/^[A-Z][a-z]+: [^:]+$/)
+    else
+      inHead = false
+    end
+
+    if ! inHead &amp;&amp; ! inContent
+      tmpFile.puts "title: \"#{title}\""
+      tmpFile.puts "date: #{date}"
+      tmpFile.puts "comments: true"
+      tmpFile.puts "categories: #{categories}"
+      tmpFile.puts "tags: [#{tags}]"
+      tmpFile.puts "---"
+
+      inContent = true
+    end
+
+    if ! inHead &amp;&amp; inContent
+      tmpFile.puts line
+    end
+  }
+
+  tmpFile.close
+
+  FileUtils.mv "tmp-file", "#{date}-#{title.downcase.split.join("-")}.markdown"
+}
+</code></pre>
+
+<p>I use this command to convert all my pelican <code>*.md</code> files to octpress <code>*.markdown</code> files:</p>
+
+<pre><code>find . -name "*.md" | xargs -n 1 ./convert.rb
+</code></pre>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn"><a href="/about" title="About the author (laputa)" rel="author">laputa</a></span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-10-14T00:09:00+09:00" pubdate data-updated="true">Oct 14<span>th</span>, 2012</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/hack/'>hack</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://laputa.io/blog/2012/10/14/switch-to-octpress/" data-via="justlaputa" data-counturl="http://laputa.io/blog/2012/10/14/switch-to-octpress/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2012/09/16/weekly-review-for-sep.16-2012/" title="Previous Post: Weekly Review for Sep.16 2012">&laquo; Weekly Review for Sep.16 2012</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2012/10/16/restore-ubuntu-grub2-after-install-windows/" title="next Post: Restore Ubuntu grub2 after install Windows">Restore Ubuntu grub2 after install Windows &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - laputa -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

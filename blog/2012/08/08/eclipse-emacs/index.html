@@ -1,0 +1,211 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Eclipse & Emacs - Coding in the Sky</title>
+  <meta name="author" content="laputa">
+
+  
+  <meta name="description" content="This post is about how I tweak Eclipse into a Emacs like IDE, and now I&rsquo;m very happy using Eclipse. Emacs Key-bindings I just got to know that &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://laputa.io/blog/2012/08/08/eclipse-emacs">
+  <link href="/favicon.ico" rel="icon">
+  
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Coding in the Sky" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   class="no-sidebar"  >
+  <header role="banner"><hgroup>
+  <h1>Coding in the Sky</h1>
+  
+    <h2><a href="/">Never wait</a></h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation">
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:laputa.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Eclipse & Emacs</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-08-08T00:00:00+09:00" pubdate data-updated="true">Aug 8<span>th</span>, 2012</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>This post is about how I tweak Eclipse into a Emacs like IDE, and now I&rsquo;m very happy using Eclipse.</p>
+
+<!--more-->
+
+
+<h2>Emacs Key-bindings</h2>
+
+<p>  I just got to know that Eclipse has a built in <a href="http://help.eclipse.org/juno/index.jsp?topic=%2Forg.eclipse.platform.doc.user%2Fconcepts%2Faccessibility%2Fkeyboardshortcuts.htm">Emacs key-binding scheme</a>, just set it like this:</p>
+
+<pre><code>Windows-&gt;Preference-&gt;General-&gt;Keys-&gt;Scheme-&gt;Emacs
+</code></pre>
+
+<p>  has most useful key-bindings, like <em>C-a</em>, <em>C-e</em>, <em>C-x C-s</em>, etc. But Set Mark does not work with <em>C-Space</em></p>
+
+<h2>Emacs+ plugin for Eclipse</h2>
+
+<p>  Install <a href="http://marketplace.eclipse.org/content/emacs">Emacs+</a> from Eclipse Marketplace, and see the tutorial on <a href="http://www.mulgasoft.com/">MulgaSoft</a>
+  Note that Emacs+ does not support Eclipse Juno(4.2), so if you want to use Emacs+, you better change back to Indigo(3.7) like me&hellip;</p>
+
+<p>  It&rsquo;s awesome, now Set Mark and Select Text works in Eclipse.</p>
+
+<h2>Menu bar integration with Ubuntu Unity</h2>
+
+<p>  This is amazing, just do as this <a href="http://elvisd.blogspot.hk/2012/01/enable-eclipse-global-menu-integration.html">blog post</a> says, and you can move the eclipse menu bar to Ubuntu global menu area.</p>
+
+<pre><code>$ sudo vim /usr/lib/gtk-2.0/2.10.0/menuproxies/libappmenu.so
+/Eclipse
+# Replace 'E' with 'X'
+Eclipse -&gt; Xclipse
+# Save &amp;&amp; Exit
+$ sudo ldconfig
+</code></pre>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn"><a href="/about" title="About the author (laputa)" rel="author">laputa</a></span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-08-08T00:00:00+09:00" pubdate data-updated="true">Aug 8<span>th</span>, 2012</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/tips/'>tips</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://laputa.io/blog/2012/08/08/eclipse-emacs/" data-via="justlaputa" data-counturl="http://laputa.io/blog/2012/08/08/eclipse-emacs/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2012/08/07/jquery-val-function/" title="Previous Post: JQuery .val() function">&laquo; JQuery .val() function</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2012/08/26/emacs-org-mode-cheat-sheet/" title="next Post: Emacs Org-mode Cheat Sheet">Emacs Org-mode Cheat Sheet &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - laputa -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

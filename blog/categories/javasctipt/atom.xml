@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: javasctipt | Coding in the Sky]]></title>
+  <link href="http://laputa.io/blog/categories/javasctipt/atom.xml" rel="self"/>
+  <link href="http://laputa.io/"/>
+  <updated>2014-08-12T17:05:25+09:00</updated>
+  <id>http://laputa.io/</id>
+  <author>
+    <name><![CDATA[laputa]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[JQuery .val() function]]></title>
+    <link href="http://laputa.io/blog/2012/08/07/jquery-val-function/"/>
+    <updated>2012-08-07T00:00:00+09:00</updated>
+    <id>http://laputa.io/blog/2012/08/07/jquery-val-function</id>
+    <content type="html"><![CDATA[<h1>JQuery 的 .val() 函数</h1>
+
+<p>最近开始学习<a href="http://jquery.com/">JQuery</a>，用的过程中发现 <a href="http://api.jquery.com/val/">.val()</a> 函数有些奇怪，于是研究了一下，收获不少。</p>
+
+<!--more-->
+
+
+<h2>.val() API</h2>
+
+<p>根据 JQuery <a href="http://api.jquery.com">api文档</a> 的描述，.val() 函数有两种用法，分别用来获取或设置元素的值，这里只介绍获取值的方法。</p>
+
+<p>文档里面说 .val 主要是用于获取元素的value，比如 <a href="http://www.w3schools.com/tags/tag_input.asp">input</a>, <a href="http://www.w3schools.com/tags/tag_select.asp">select</a> 和 <a href="http://www.w3schools.com/tags/tag_textarea.asp">textarea</a>等，首先第一个问题，"什么是元素的<strong>value</strong>?"</p>
+
+<p>用 <em>select</em> 标签为例，如下的代码：</p>
+
+<pre><code>&lt;select id="choise"&gt;
+    &lt;option&gt;One&lt;/option&gt;
+    &lt;option&gt;Two&lt;/option&gt;
+    &lt;option&gt;Three&lt;/option&gt;
+    &lt;option&gt;Four&lt;/option&gt;
+&lt;/select&gt;
+&lt;p id="result"&gt;&lt;/p&gt;
+
+$('#choise').click(function(event) {
+    $('#result').html($(this).val());
+});
+</code></pre>
+
+<p>可以在<a href="http://jsfiddle.net/">jsfiddle</a>上运行<a href="http://jsfiddle.net/justlaputa/NGzDD/">这段代码</a>试试。这段代码跟 jquery 官方文档上所给的例子一样，可以看到在 <em>select</em> 标签所表示的对象上调用 <strong>.val()</strong> 方法，得到的是被选中的 <em>option</em> 的值，所以在选择的时候，下面显示的是相应的option中的值，那我们看<a href="http://jsfiddle.net/justlaputa/NGzDD/13/">这段代码</a>:</p>
+
+<pre><code>&lt;select id="choise"&gt;
+  &lt;option value="1"&gt;One&lt;/option&gt;
+  &lt;option value="2"&gt;Two&lt;/option&gt;
+  &lt;option value="3"&gt;Three&lt;/option&gt;
+  &lt;option value="4"&gt;Four&lt;/option&gt;
+&lt;/select&gt;
+
+&lt;p id="result"&gt;&lt;/p&gt;
+
+$('#choise').click(function(event) {
+    $('#result').html($(this).val());
+});
+</code></pre>
+
+<p>可以看到，选中后显示的值变成了<code>1, 2, 3, 4</code>，那么什么是 <em>option</em> 的 <strong>value</strong> 呢？从这两段代码就能看出来 <em>option</em> 真正的 <strong>value</strong> 应该是其 value 属性中的值，而不是 <em>option</em> 标签中间所包含的内容，这段内容实际上是 <em>option</em> 对象的 <strong>text</strong> 值，将如上的 javascript 代码<a href="http://jsfiddle.net/justlaputa/NGzDD/17/">换成如下</a>就能得到跟之前一样的效果了。</p>
+
+<pre><code>$('#choise').click(function(event) {
+  $('#result').html($('#choise option:selected').text());
+});
+</code></pre>
+
+<p>实际上，在 <a href="www.w3schools.com">w3school</a> 的<a href="http://www.w3schools.com/tags/att_option_value.asp">文档</a>中对 <em>option</em> 的 <strong>value</strong> 属性的做了如下定义：</p>
+
+<blockquote><p>The value attribute specifies the value to be sent to a server when a form is submitted.</p>
+
+<p>The content between the opening &lt;option> and closing &lt;/option> tags is what the browsers will display in a drop-down list. However, the value of the value attribute is what will be sent to the server when a form is submitted.</p>
+
+<p><strong>Note:</strong> If the value attribute is not specified, the content will be passed as the value instead.</p></blockquote>
+
+<p>  这一点对于所有可以拥有 <strong>value</strong> <a href="http://www.w3.org/TR/html4/index/attributes.html">属性</a>的标签都是相同的，即在对一个元素调用 <strong>.val()</strong> 函数时，首先取其 <strong>value</strong> 属性的值，如果没有的话，再使用其 <strong>text</strong> 值。</p>
+
+<h2>JQuery 代码</h2>
+
+<p>知道了这个还不够，我们可以看看 <a href="http://jquery.com/">JQuery</a> 是如何处理元素的value的，即如何实现 .val() 函数。</p>
+
+<p>在 <a href="http://code.jquery.com/jquery-1.7.2.js">jquery-1.7.2</a> 中对 .val() 的实现代码只有两段，如下：</p>
+
+<pre><code>val: function( value ) {
+    var hooks, ret, isFunction,
+        elem = this[0];
+
+    if ( !arguments.length ) {
+        if ( elem ) {
+            hooks = jQuery.valHooks[ elem.type ] ||
+             jQuery.valHooks[ elem.nodeName.toLowerCase() ];
+
+            if ( hooks &amp;&amp; "get" in hooks &amp;&amp; (ret = hooks.get( elem, "value" )) !== undefined ) {
+                return ret;
+            }
+
+            ret = elem.value;
+
+            return typeof ret === "string" ?
+                // handle most common string cases
+                ret.replace(rreturn, "") :
+                // handle cases where value is null/undef or number
+                ret == null ? "" : ret;
+        }
+
+        return;
+    }
+
+    isFunction = jQuery.isFunction( value );
+
+    return this.each(function( i ) {
+        var self = jQuery(this), val;
+
+        if ( this.nodeType !== 1 ) {
+            return;
+        }
+
+        if ( isFunction ) {
+            val = value.call( this, i, self.val() );
+        } else {
+            val = value;
+        }
+
+        // Treat null/undefined as ""; convert numbers to string
+        if ( val == null ) {
+            val = "";
+        } else if ( typeof val === "number" ) {
+            val += "";
+        } else if ( jQuery.isArray( val ) ) {
+            val = jQuery.map(val, function ( value ) {
+                return value == null ? "" : value + "";
+            });
+        }
+
+        hooks = jQuery.valHooks[ this.type ] || jQuery.valHooks[ this.nodeName.toLowerCase() ];
+
+        // If set returns undefined, fall back to normal setting
+        if ( !hooks || !("set" in hooks) || hooks.set( this, val, "value" ) === undefined ) {
+            this.value = val;
+        }
+    });
+}
+
+jQuery.extend({
+valHooks: {
+    option: {
+        get: function( elem ) {
+            // attributes.value is undefined in Blackberry 4.7 but
+            // uses .value. See #6932
+            var val = elem.attributes.value;
+            return !val || val.specified ? elem.value : elem.text;
+        }
+    },
+    select: {
+        get: function( elem ) {
+            var value, i, max, option,
+                index = elem.selectedIndex,
+                values = [],
+                options = elem.options,
+                one = elem.type === "select-one";
+
+            // Nothing was selected
+            if ( index &lt; 0 ) {
+                return null;
+            }
+
+            // Loop through all the selected options
+            i = one ? index : 0;
+            max = one ? index + 1 : options.length;
+            for ( ; i &lt; max; i++ ) {
+                option = options[ i ];
+
+                // Don't return options that are disabled or in a disabled optgroup
+                if ( option.selected &amp;&amp; (jQuery.support.optDisabled ? !option.disabled : option.getAttribute("disabled") === null) &amp;&amp;
+                        (!option.parentNode.disabled || !jQuery.nodeName( option.parentNode, "optgroup" )) ) {
+
+                    // Get the specific value for the option
+                    value = jQuery( option ).val();
+
+                    // We don't need an array for one selects
+                    if ( one ) {
+                        return value;
+                    }
+
+                    // Multi-Selects return an array
+                    values.push( value );
+                }
+            }
+
+            // Fixes Bug #2551 -- select.val() broken in IE after form.reset()
+            if ( one &amp;&amp; !values.length &amp;&amp; options.length ) {
+                return jQuery( options[ index ] ).val();
+            }
+
+            return values;
+        },
+
+        set: function( elem, value ) {
+            var values = jQuery.makeArray( value );
+
+            jQuery(elem).find("option").each(function() {
+                this.selected = jQuery.inArray( jQuery(this).val(), values ) &gt;= 0;
+            });
+
+            if ( !values.length ) {
+                elem.selectedIndex = -1;
+            }
+            return values;
+        }
+    }
+},
+</code></pre>
+
+<p>可以看到 valHooks 对 <em>select</em> 和 <em>option</em> 标签做了处理，对于 <strong>select</strong> 对象，在使用 <strong>.val()</strong> 函数时调用 <strong>get</strong> 方法，找到被选中(selected)的option，并返回 option.val()，在使用 <strong>.val(value)</strong> 函数时，调用 <strong>set</strong> 方法，找到 option 中值与 <em>value</em> 相同的，并设置其为 selected. 对 <em>option</em> 标签的 hook 也可以同样分析。</p>
+]]></content>
+  </entry>
+  
+</feed>

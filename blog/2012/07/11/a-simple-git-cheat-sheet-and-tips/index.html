@@ -1,0 +1,325 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>A simple Git cheat sheet and tips - Coding in the Sky</title>
+  <meta name="author" content="laputa">
+
+  
+  <meta name="description" content="Here is a simple Git cheat sheet and I will update this when I find new ones. Cheat Sheet: config: $ git config --global user.name "John Doe" $ git &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://laputa.io/blog/2012/07/11/a-simple-git-cheat-sheet-and-tips">
+  <link href="/favicon.ico" rel="icon">
+  
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Coding in the Sky" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   class="no-sidebar"  >
+  <header role="banner"><hgroup>
+  <h1>Coding in the Sky</h1>
+  
+    <h2><a href="/">Never wait</a></h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation">
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:laputa.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">A Simple Git Cheat Sheet and Tips</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-07-11T00:00:00+09:00" pubdate data-updated="true">Jul 11<span>th</span>, 2012</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>Here is a simple Git cheat sheet and I will update this when I find new ones.</p>
+
+<!--more-->
+
+
+<h2>Cheat Sheet:</h2>
+
+<h3>config:</h3>
+
+<pre><code> $ git config --global user.name "John Doe"
+ $ git config --global user.email johndoe@example.com
+</code></pre>
+
+<p>   this will store your identity in <em>~/.gitconfig</em>, use <code>--system</code> to store in <em>/etc/gitconfig</em>, use <code>--local</code> to specify a per-repository configuration, which stores in <em>.git/config</em>.</p>
+
+<h3>log</h3>
+
+<pre><code>| git log                                           | view commit log                    |
+| git log -p -2                                     | show patch of last 2 commit        |
+| git log --stat                                    | show simple state                  |
+| git log --pretty=oneline                          | show in other formats              |
+| git log --graph --all --decorate --pretty=oneline | show all branch commits with graph |
+</code></pre>
+
+<h3>undo things</h3>
+
+<pre><code>| git commit --amend       | this will overwrite the last commit |
+| git reset HEAD~1         | discard last commit                 |
+| git reset HEAD filename  | unstage a file                      |
+| git checkout -- filename | undo modified file                  |
+</code></pre>
+
+<h3>remote</h3>
+
+<pre><code>| git remote -v                    | show remote repository  |
+| git remote add [shortname] [url] | add remote repository   |
+| git fetch [remote]               | fetch remote            |
+| git remote show [shortname]      | show remote infomation  |
+| git remote rename [from] [to]    | rename remote shortname |
+| git remote rm [remote]           | remove remote           |
+</code></pre>
+
+<h2>Tricks &amp; Tips</h2>
+
+<h3>clone into an existing directory</h3>
+
+<p>clone a repo into an existing directory,</p>
+
+<pre><code>$ cd PATH/YOU/WANT/TO/PUT/GIT/FILES
+$ git init
+$ git remote add origin git://remote.repo.url.path
+$ git fetch
+$ git checkout -t origin/master
+</code></pre>
+
+<p><code>fetch</code> will get all remote branches to local, but we still need the <code>checkout</code> command to switch to a specific branch,  <code>-t</code> implies <code>-b</code>, which tells git to create a local <strong>master</strong> branch and make it to track the remote master branch, which is <strong>origin/master</strong>.</p>
+
+<h3>view the history of a single file</h3>
+
+<pre><code>$ git log -p filename
+$ git whatchanged -p filename
+
+$ git log -p --follow filename
+$ git blame filename
+
+$ gitk filename
+</code></pre>
+
+<h3>checkout a single file from another branch</h3>
+
+<pre><code>$ git checkout branch_1 -- path/to/file
+</code></pre>
+
+<h3>revert to previous commit/discard current commit</h3>
+
+<p>  if you doesn&rsquo;t push your commit:</p>
+
+<pre><code>git reset --hard HEAD~1
+</code></pre>
+
+<p>  if you already push your commit:</p>
+
+<pre><code>git revert HEAD
+</code></pre>
+
+<h3>rewrite last commit message</h3>
+
+<p>  see this<a href="http://stackoverflow.com/questions/179123/how-do-i-edit-an-incorrect-commit-message-in-git">stackoverflow questions</a></p>
+
+<pre><code>git commit --amend -m "New commit message"
+</code></pre>
+
+<h3>discard all modify</h3>
+
+<pre><code>git checkout .
+</code></pre>
+
+<h3>working with remotes</h3>
+
+<p>  create remote branch</p>
+
+<pre><code>$ git push REMOTENAME BRANCHNAME
+</code></pre>
+
+<p>  delete remote branch</p>
+
+<pre><code>$ git push REMOTENAME :BRANCHNAME
+</code></pre>
+
+<p>  pushing tags</p>
+
+<pre><code>$ git push REMOTENAME TAGNAME
+$ git push REMOTENAME BRANCHNAME --tags
+</code></pre>
+
+<p>  push to multiple remotes at the same time</p>
+
+<pre><code>$ vim .git/config
+[remote "all"]
+url = git@github.com:luoshupeng/commonuseppa.git
+url = git@gitcafe.com:chinesedragon/commonuseppa.git
+url = chinesedragon@gitcd.com:/commonuseppa
+$ git push all
+</code></pre>
+
+<p>this will push to all urls</p>
+
+<h3>show/hide untracked files</h3>
+
+<pre><code>$ git status -u   #show only untracked files
+$ git status -uno #don't show untracked files
+$ git config status.showuntrackedfiles no
+
+# List git-ignored files
+$ git ls-files . --ignored --exclude-standard --others
+
+# List untracked files
+$ git ls-files . --exclude-standard --others
+</code></pre>
+
+<h3>checkout single file from stash</h3>
+
+<p>  see more <a href="http://stackoverflow.com/questions/1105253/how-would-i-extract-a-single-file-or-changes-to-a-file-from-a-git-stash">here</a></p>
+
+<pre><code>$ git checkout stash@{0} -- &lt;filename&gt;
+</code></pre>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn"><a href="/about" title="About the author (laputa)" rel="author">laputa</a></span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-07-11T00:00:00+09:00" pubdate data-updated="true">Jul 11<span>th</span>, 2012</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/cheetsheet/'>cheetsheet</a>, <a class='category' href='/blog/categories/tips/'>tips</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://laputa.io/blog/2012/07/11/a-simple-git-cheat-sheet-and-tips/" data-via="justlaputa" data-counturl="http://laputa.io/blog/2012/07/11/a-simple-git-cheat-sheet-and-tips/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2012/07/10/try-gstreamer-sdk/" title="Previous Post: 初探Gstreamer SDK">&laquo; 初探Gstreamer SDK</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2012/07/30/newly-install-ubuntu/" title="next Post: Newly Install Ubuntu">Newly Install Ubuntu &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - laputa -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

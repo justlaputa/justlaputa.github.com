@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: emacs | Coding in the Sky]]></title>
+  <link href="http://laputa.io/blog/categories/emacs/atom.xml" rel="self"/>
+  <link href="http://laputa.io/"/>
+  <updated>2014-08-12T17:05:25+09:00</updated>
+  <id>http://laputa.io/</id>
+  <author>
+    <name><![CDATA[laputa]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Emacs Raises]]></title>
+    <link href="http://laputa.io/blog/2012/08/30/emacs-raises/"/>
+    <updated>2012-08-30T00:00:00+09:00</updated>
+    <id>http://laputa.io/blog/2012/08/30/emacs-raises</id>
+    <content type="html"><![CDATA[<p>以前读研究生的时候一直用Emacs，工作后好久没用，本来都以为自己快忘了，后来在公司电脑装了Ubuntu，终于开始重新用上Emacs了，依旧很爽。</p>
+
+<p>慢慢捡起Emacs，才发现有些东西是永远都忘不了的，Emacs的快捷键已经深入骨髓了，前段时间我折腾了下<a href="http://justlaputa.github.com/2012/08/eclipse-emacs-en.html">Eclipse</a>，把Eclipse改造成了Emacs，还是相当成功的，我现在用Eclipse很嗨，当然还是有大部分时间是用Emacs的。</p>
+
+<!--more-->
+
+
+<p>加上前段时间入的<a href="http://elitekeyboards.com/products.php?sub=pfu_keyboards,hhkbpro2&amp;pid=pdkb400b">HHKB</a>，上周<a href="http://justlaputa.github.com/2012/08/buy-hhkb.html">到手了</a>，用了一个星期，简直乃<strong>神器</strong>也，配合Emacs的快捷键相当不错，除了<em>&lsquo;~&rsquo;</em> 键键位比较奇怪外，其他没有啥缺陷。手感比我之前用的Filco 87 忍者青轴要好，PBT键帽手感很舒服，让人有一种想写代码的冲动，哈哈。</p>
+
+<p>最近重新开始学习Emacs <a href="http://orgmode.org/">Org-mode</a>，用org-agenda做<a href="http://en.wikipedia.org/wiki/Getting_Things_Done">GTD</a>，虽然花了不少时间，但确实提高了做事情的效率，让我对事情更有计划了，以后一定坚持，慢慢学更多的东西。还好公司有咖啡机，不然可能我会考虑用Emacs <a href="http://www.emacswiki.org/emacs/CoffeeMode">煮咖啡</a> :)</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Emacs Tips&Tricks]]></title>
+    <link href="http://laputa.io/blog/2012/08/26/emacs-tips-tricks/"/>
+    <updated>2012-08-26T00:00:00+09:00</updated>
+    <id>http://laputa.io/blog/2012/08/26/emacs-tips-tricks</id>
+    <content type="html"><![CDATA[<!--more-->
+
+
+<p>  delete ^M with emacs</p>
+
+<pre><code>M-x replace-string &lt;RET&gt; C-q C-m &lt;RET&gt; &lt;RET&gt;
+</code></pre>
+
+<p>  save backup files elsewhere</p>
+
+<pre><code>(defvar user-temporary-file-directory
+  (concat temporary-file-directory user-login-name "/"))
+(make-directory user-temporary-file-directory t)
+(setq backup-by-copying t)
+(setq backup-directory-alist
+      `(("." . ,user-temporary-file-directory)
+        (,tramp-file-name-regexp nil)))
+(setq auto-save-list-file-prefix
+      (concat user-temporary-file-directory ".auto-saves-"))
+(setq auto-save-file-name-transforms
+      `((".*" ,user-temporary-file-directory t)))
+</code></pre>
+
+<p>  open file as root</p>
+
+<p>  using tramp, see tramp manual</p>
+
+<pre><code>C-x C-f /su::/etc/passwd
+</code></pre>
+
+<p>  replace with a newline</p>
+
+<pre><code>M-x replace-string ; C-q C-j
+</code></pre>
+
+<p>  kill all buffers</p>
+
+<pre><code>M-x kill-some-buffers
+</code></pre>
+
+<p>  save all buffers</p>
+
+<pre><code>C-x s
+</code></pre>
+
+<p>  insert comment</p>
+
+<p>  select region to comment:</p>
+
+<pre><code> M-;
+</code></pre>
+
+<p>  <a href="http://www.cs.ucf.edu/~leavens/emacs/ecb/html-help/Setting-up-semantic.html">disable red underline</a></p>
+
+<pre><code>(global-semantic-show-unmatched-syntax-mode -1)
+</code></pre>
+
+<p>  Swap caps lock &amp; ctrl</p>
+
+<pre><code>$ vim ~/.Xmodmap
+remove Lock = Caps_Lock
+remove Control = Control_L
+keysym Control_L = Caps_Lock
+keysym Caps_Lock = Control_L
+add Lock = Caps_Lock
+add Control = Control_L
+</code></pre>
+
+<p>  insert date</p>
+
+<pre><code>C-u M-! date
+M-1 M-! date
+</code></pre>
+
+<p>  show whitespace</p>
+
+<pre><code>M-x whitespace-mode
+</code></pre>
+
+<p>  keybord macros</p>
+
+<pre><code>C-x (     -&gt;start macro
+key sequence
+C-x )     -&gt;stop macro
+C-x e     -&gt;execute macro
+C-u N C-x e -&gt; N times
+</code></pre>
+
+<p>  replace tabs with spaces</p>
+
+<pre><code>M-x untabify
+</code></pre>
+
+<p>  vice versa:</p>
+
+<pre><code>M-x tabify
+</code></pre>
+
+<p>  <a href="http://www.delorie.com/gnu/docs/emacs/emacs_68.html">multi-line edit</a></p>
+
+<p>  mark a region then:</p>
+
+<pre><code>C-x r t
+</code></pre>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Emacs Org-mode Cheat Sheet]]></title>
+    <link href="http://laputa.io/blog/2012/08/26/emacs-org-mode-cheat-sheet/"/>
+    <updated>2012-08-26T00:00:00+09:00</updated>
+    <id>http://laputa.io/blog/2012/08/26/emacs-org-mode-cheat-sheet</id>
+    <content type="html"><![CDATA[<!--more-->
+
+
+<h2>Keybindings</h2>
+
+<h3>General</h3>
+
+<pre><code>| Visibility cycling    |                                                 |
+| &lt;TAB&gt;                 | Rotate current subtree                          |
+| S-&lt;TAB&gt; and C-u &lt;TAB&gt; | Rotate entire buffer                            |
+| C-u C-u C-u &lt;TAB&gt;     | Show all                                        |
+|-----------------------+-------------------------------------------------|
+| Move between heading  |                                                 |
+| C-c C-n               | Next heading                                    |
+| C-c C-p               | Previous Heading                                |
+| C-c C-f               | Next heading same level                         |
+| C-c C-b               | Previous Heading same level                     |
+| C-c C-u               | Backward to higher level heading                |
+|-----------------------+-------------------------------------------------|
+| Structure editing     |                                                 |
+| M-&lt;RET&gt;               | Insert new heading with same level as current   |
+| M-S-&lt;RET&gt;             | Insert new TODO entry                           |
+| &lt;TAB&gt;                 | Cycle through levels in empty entry             |
+| M-&lt;left&gt;/&lt;right&gt;      | Promote/demote current heading by one level     |
+| M-S-&lt;left&gt;/&lt;right&gt;    | Promote/demote current subtree by one level     |
+| M-S-&lt;up&gt;/&lt;down&gt;       | Move subtree up/down                            |
+| C-c C-w               | Refile entry or region to different location    |
+| C-x n s/w             | Narrow buffer to current subtree/widen it again |
+|-----------------------+-------------------------------------------------|
+| Sparse trees          |                                                 |
+| C-c /                 |                                                 |
+| C-c / r               |                                                 |
+|-----------------------+-------------------------------------------------|
+| Plain lists           |                                                 |
+| '-' '+' '*'           | Unordered list                                  |
+| '1.' '1)'             | Ordered list                                    |
+| '::'                  | Description list                                |
+| &lt;TAB&gt;                 | Fold items                                      |
+| M-&lt;RET&gt;               | Insert new items                                |
+| M-S-&lt;RET&gt;             | Insert new items with a checkbox                |
+| M-S-&lt;up&gt;/&lt;down&gt;       | Move item up/down                               |
+| M-&lt;left&gt;/&lt;right&gt;      | Decrease/increase indentation of item           |
+| M-S-&lt;left&gt;/&lt;right&gt;    | Decrease/increase including subitems            |
+| C-c C-c               | Toggle checkbox                                 |
+| C-c -                 | Cycle item bullets('-','+','*','1.','1)')       |
+|-----------------------+-------------------------------------------------|
+| Footnotes             |                                                 |
+| C-c C-x f             | Footnote action command                         |
+| C-c C-c               | Jump between definition and reference           |
+|-----------------------+-------------------------------------------------|
+</code></pre>
+
+<h3>Tables</h3>
+
+<pre><code>| C-c |                        | convert and active region to table, create new table if no active region |
+| C-c C-c                      | Re-align table without moveing the cursor                                |
+| &lt;TAB&gt;                        | Re-align and move to next field                                          |
+| S-&lt;TAB&gt;                      | Re-align and move to previous field                                      |
+| &lt;RET&gt;                        | Re-align and move down to next row                                       |
+|------------------------------+--------------------------------------------------------------------------|
+| Column and row editing       |                                                                          |
+| M-&lt;left&gt;/&lt;right&gt;             | Move current column left/right                                           |
+| M-S-&lt;left&gt;                   | Kill current column                                                      |
+| M-S-&lt;right&gt;                  | Insert new column to the left of cursor                                  |
+| M-&lt;up&gt;/&lt;down&gt;                | Move current row up/down                                                 |
+| M-S-&lt;up&gt;                     | Kill current row                                                         |
+| M-S-&lt;down&gt;                   | Insert new row above current                                             |
+| C-c -                        | Insert horizontal line below current                                     |
+| C-c &lt;RET&gt;                    | Insert horizontal line below and move to it                              |
+| C-c ^                        | Sort table lines                                                         |
+</code></pre>
+
+<h3>Hyperlinks</h3>
+
+<pre><code>| C-c l   | Store a link                                |
+| C-c C-l | Insert a link                               |
+| C-c C-l | Edit links when cursor on the link          |
+| C-c C-o | Open link                                   |
+| C-c &amp;   | Jump back to recorded position(Using C-c %) |
+</code></pre>
+
+<h3>TODO Items</h3>
+
+<pre><code>| C-c C-t          | Rotate TODO states               |
+| S-&lt;right&gt;/&lt;left&gt; | Select following/preceding state |
+| C-c / t          | View TODO items in sparse tree   |
+| C-c a t          | Show global TODO list            |
+| S-M-&lt;RET&gt;        | Insert new TODO entry            |
+| C-c ,            | Set priority                     |
+| S-&lt;up&gt;/&lt;down&gt;    | Increase/decrease priority       |
+</code></pre>
+]]></content>
+  </entry>
+  
+</feed>

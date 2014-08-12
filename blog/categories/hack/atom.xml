@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: hack | Coding in the Sky]]></title>
+  <link href="http://laputa.io/blog/categories/hack/atom.xml" rel="self"/>
+  <link href="http://laputa.io/"/>
+  <updated>2014-08-12T17:05:25+09:00</updated>
+  <id>http://laputa.io/</id>
+  <author>
+    <name><![CDATA[laputa]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Switch to octpress]]></title>
+    <link href="http://laputa.io/blog/2012/10/14/switch-to-octpress/"/>
+    <updated>2012-10-14T00:09:00+09:00</updated>
+    <id>http://laputa.io/blog/2012/10/14/switch-to-octpress</id>
+    <content type="html"><![CDATA[<p>Trying to switch blog generator from pelican to octpress.</p>
+
+<p>And I have created a little ruby script to convert pelican markdown post to octpress post. Which actually converts the post head like:</p>
+
+<!--more-->
+
+
+<p>In pelican:</p>
+
+<pre><code>Date: 2012-09-02    
+Title: Using Awesome in Ubuntu 12.04  
+Category: Dev  
+Tags: ubuntu, awesome, wm, linux  
+Slug: awesome-on-ubuntu
+Lang: en  
+Author: laputa  
+</code></pre>
+
+<p>to in Octpress:</p>
+
+<pre><code>---
+layout: post
+title: "Using Awesome in Ubuntu 12.04"
+date: 2012-09-02
+comments: true
+categories: Dev
+tags: [ubuntu, awesome, wm, linux]
+---
+</code></pre>
+
+<p>and also copy the file to YYYY-MM-DD-Title.markdown as Jekyll requires.</p>
+
+<p>Here is the script, a little ugly, but can be used:</p>
+
+<p><code>convert.rb:</code></p>
+
+<pre><code>#!/usr/bin/env ruby
+
+require 'fileutils'
+
+tmpFile = open("tmp-file", "w")
+tmpFile.puts "---"
+tmpFile.puts "layout: post"
+
+open(ARGV[0]) { |file|
+  inHead = true
+  inContent = false
+  date = "2012-10-14"
+  title = "tmp-file"
+  categories = "dev"
+  tags = ""
+  file.readlines.each{ |line|
+    if line.start_with?("Date:")
+      date = line.split(":")[1].strip
+    elsif line.start_with?("Title:")
+      title = line.split(":")[1].strip
+    elsif line.start_with?("Category:")
+      categories = line.split(":")[1].strip
+    elsif line.start_with?("Tags:")
+      tags = line.split(":")[1].strip
+    elsif line.match(/^[A-Z][a-z]+: [^:]+$/)
+    else
+      inHead = false
+    end
+
+    if ! inHead &amp;&amp; ! inContent
+      tmpFile.puts "title: \"#{title}\""
+      tmpFile.puts "date: #{date}"
+      tmpFile.puts "comments: true"
+      tmpFile.puts "categories: #{categories}"
+      tmpFile.puts "tags: [#{tags}]"
+      tmpFile.puts "---"
+
+      inContent = true
+    end
+
+    if ! inHead &amp;&amp; inContent
+      tmpFile.puts line
+    end
+  }
+
+  tmpFile.close
+
+  FileUtils.mv "tmp-file", "#{date}-#{title.downcase.split.join("-")}.markdown"
+}
+</code></pre>
+
+<p>I use this command to convert all my pelican <code>*.md</code> files to octpress <code>*.markdown</code> files:</p>
+
+<pre><code>find . -name "*.md" | xargs -n 1 ./convert.rb
+</code></pre>
+]]></content>
+  </entry>
+  
+</feed>

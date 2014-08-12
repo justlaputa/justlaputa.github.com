@@ -1,0 +1,289 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Test MediaElement.js locally - Coding in the Sky</title>
+  <meta name="author" content="laputa">
+
+  
+  <meta name="description" content="Today I was trying to use mediaelement.js to play mp3 audio in browsers. I thought it was easy, but still I&rsquo;ve met problems, mainly with &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://laputa.io/blog/2013/03/05/test-mediaelement-dot-js-locally">
+  <link href="/favicon.ico" rel="icon">
+  
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Coding in the Sky" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   class="no-sidebar"  >
+  <header role="banner"><hgroup>
+  <h1>Coding in the Sky</h1>
+  
+    <h2><a href="/">Never wait</a></h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation">
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:laputa.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Test MediaElement.js Locally</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-03-05T20:21:00+09:00" pubdate data-updated="true">Mar 5<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>Today I was trying to use <a href="http://mediaelementjs.com/">mediaelement.js</a> to play mp3 audio in browsers. I thought it was easy, but still I&rsquo;ve met problems, mainly with <a href="https://www.mozilla.org/en-US/firefox/">Firefox</a>.</p>
+
+<!--more-->
+
+
+<p>First, I want to use static local html file to test the library, which is fast to do. Here is the code:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ tree mejs
+</span><span class='line'>mejs
+</span><span class='line'>├── css
+</span><span class='line'>│   ├── background.png
+</span><span class='line'>│   ├── bigplay.png
+</span><span class='line'>│   ├── bigplay.svg
+</span><span class='line'>│   ├── controls-ted.png
+</span><span class='line'>│   ├── controls-wmp-bg.png
+</span><span class='line'>│   ├── controls-wmp.png
+</span><span class='line'>│   ├── controls.png
+</span><span class='line'>│   ├── controls.svg
+</span><span class='line'>│   ├── loading.gif
+</span><span class='line'>│   └── mediaelementplayer.css
+</span><span class='line'>├── index.html
+</span><span class='line'>├── js
+</span><span class='line'>│   ├── app.js
+</span><span class='line'>│   ├── flashmediaelement.swf
+</span><span class='line'>│   ├── jquery.js
+</span><span class='line'>│   └── mediaelement-and-player.js
+</span><span class='line'>└── media
+</span><span class='line'>    └── music.mp3
+</span><span class='line'>
+</span><span class='line'>3 directories, 16 files</span></code></pre></td></tr></table></div></figure>
+
+
+<p><strong>index.html</strong> :</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>&lt;!doctype html&gt;
+</span><span class='line'>&lt;html&gt;
+</span><span class='line'>&lt;head&gt;
+</span><span class='line'>    &lt;link type="text/css" rel="stylesheet" href="css/mediaelementplayer.css" /&gt;
+</span><span class='line'>    &lt;script src="js/jquery.js"&gt;&lt;/script&gt;
+</span><span class='line'>    &lt;script src="js/mediaelement-and-player.js"&gt;&lt;/script&gt;
+</span><span class='line'>&lt;/head&gt;
+</span><span class='line'>&lt;body&gt;
+</span><span class='line'>    &lt;audio type="audio/mp3" src="media/music.mp3" controls&gt;&lt;/audio&gt;
+</span><span class='line'>    &lt;script src="js/app.js"&gt;&lt;/script&gt;
+</span><span class='line'>&lt;/body&gt;
+</span><span class='line'>&lt;/html&gt;</span></code></pre></td></tr></table></div></figure>
+
+
+<p><strong>app.js</strong> :</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$(function() {
+</span><span class='line'>    $('audio').mediaelementplayer();
+</span><span class='line'>});</span></code></pre></td></tr></table></div></figure>
+
+
+<p>As firefox does not support <a href="https://developer.mozilla.org/en-US/docs/HTML/Supported_media_formats#compat-desktop">MP3 format</a>, if we don&rsquo;t include the <code>app.js</code> file to use mediaelement.js, the browser will not show the audio bar, and gives an error in js console:</p>
+
+<blockquote><p>HTTP &ldquo;Content-Type&rdquo; of &ldquo;audio/mpeg&rdquo; is not supported. Load of media resource file:///Users/hanxiao/workspace/test/mejs/media/music.mp3 failed. @ file:///Users/hanxiao/workspace/test/mejs/index.html</p></blockquote>
+
+<p>So we include <code>app.js</code> and call <code>mediaelementplayer()</code> function to let mediaelement.js use the flash fallback to play mp3 in firefox. But problems happens here, the audio bar shows, but no control icon, and the audio can not play.</p>
+
+<p>The reason is that flash plugin has <a href="https://www.macromedia.com/support/documentation/en/flashplayer/help/settings_manager04.html#117502">security control</a>, which prevents flash plugin to access the local mp3 file. To allow this, open a flash video site like <a href="https://www.youtube.com/">youtube</a> or <a href="http://www.youku.com/">youku</a> if you can&rsquo;t. Open one video page, and wait the video to play, not we have a running flash plugin, right click on it and choose <strong>Global Settings…->Advanced->Trusted Location Settings…</strong> add the directory of the local site to it, then open <code>index.html</code> in firefox, now the mp3 plays like a charm.</p>
+
+<p>Something intresting: though firefox declares not support mp3, but when I open the mp3 file directly in firefox, it plays well, and the inspector show this code:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>&lt;embed type="audio/mpeg" src="file:///Users/hanxiao/workspace/test/mejs/media/music.mp3" name="plugin" height="100%" width="100%"&gt;</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Do you know why? Please comment if you do, cause currently I don&rsquo;t..</p>
+
+<p>Update: Created a <a href="git@github.com:justlaputa/mejs-test.git">github repo</a> about this code.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn"><a href="/about" title="About the author (laputa)" rel="author">laputa</a></span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-03-05T20:21:00+09:00" pubdate data-updated="true">Mar 5<span>th</span>, 2013</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/tutorial/'>tutorial</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://laputa.io/blog/2013/03/05/test-mediaelement-dot-js-locally/" data-via="justlaputa" data-counturl="http://laputa.io/blog/2013/03/05/test-mediaelement-dot-js-locally/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2012/12/25/monthly-review-for-dec/" title="Previous Post: Monthly Review for Dec">&laquo; Monthly Review for Dec</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2013/05/14/blog-url-changed/" title="next Post: Blog URL changed">Blog URL changed &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - laputa -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

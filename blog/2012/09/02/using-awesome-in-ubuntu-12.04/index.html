@@ -1,0 +1,253 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Using Awesome in Ubuntu 12.04 - Coding in the Sky</title>
+  <meta name="author" content="laputa">
+
+  
+  <meta name="description" content="I have used Ubuntu 12.04 for about 1.5 months, and now I&rsquo;m very happy to use it, as I started Linux by Fedora, and tried many other major &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://laputa.io/blog/2012/09/02/using-awesome-in-ubuntu-12.04">
+  <link href="/favicon.ico" rel="icon">
+  
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Coding in the Sky" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   class="no-sidebar"  >
+  <header role="banner"><hgroup>
+  <h1>Coding in the Sky</h1>
+  
+    <h2><a href="/">Never wait</a></h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation">
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:laputa.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Using Awesome in Ubuntu 12.04</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-09-02T00:00:00+09:00" pubdate data-updated="true">Sep 2<span>nd</span>, 2012</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>I have used <a href="http://www.ubuntu.com/">Ubuntu</a> <a href="http://releases.ubuntu.com/12.04/">12.04</a> for about 1.5 months, and now I&rsquo;m very happy to use it, as I started Linux by <a href="http://fedoraproject.org/">Fedora</a>, and tried many other major <a href="http://distrowatch.com/">distributions</a>, my last distribution was <a href="http://www.gentoo.org/">Gentoo</a>, and I like it very much, still now. After I graduate from school and start my first job, I&rsquo;m very glad that my employer does not care what OS I use, so I can continue using Linux, and this time I choose to try Ubuntu, which I have not used too much before.</p>
+
+<!--more-->
+
+
+<p>Till now, I have used it for nearly two month, and I&rsquo;m happy now. It is simple, <a href="http://unity.ubuntu.com/">Unity</a> is well designed, and it does not influence my work experience, I like it. Of cause I did some <a href="http://justlaputa.github.com/2012/07/install-ubuntu-en.html">tweak to Ubuntu</a> to fit my habit, like disable some keybindings.</p>
+
+<p>But recently, I started to miss one thing, which is the <a href="http://awesome.naquadah.org/">awesome</a> window manager, I miss the <strong><code>Win + n</code></strong> workspace switch shortcut, and I miss it so much. Especially after I have buy a <a href="http://justlaputa.github.com/2012/08/buy-hhkb.html">HHKB</a> lately, and I have to press 4 keys(<strong><code>Fn + Ctrl + Alt + Arrow</code></strong>) to switch workspace in Ubuntu Unity, though I have practiced my finger, but I miss awesome so much and plan to use it in ubuntu. And luckily it is easy.</p>
+
+<p>Here is my experience about install and config awesome in <strong>Ubuntu 12.04</strong>.</p>
+
+<h2>install awesome</h2>
+
+<p>awesome is already in Ubuntu&rsquo;s package source, install it by apt-get:</p>
+
+<pre><code>$ sudo apt-get install awesome
+</code></pre>
+
+<p>so it is easy, isn&rsquo;t it? Let&rsquo;s try it.</p>
+
+<p>logout from ubuntu, and you will get to the <a href="http://wiki.freedesktop.org/wiki/Software/LightDM">lightdm</a> login screen, and click the cycle icon besides your use name, a ha, we get a list of all available sessions to login, and of cause awesome is in the list. So choose <strong>awesome</strong> as the session, and type your password to login. Now you can see the awesome windows manager, yes, it&rsquo;s cool.</p>
+
+<p>But wait, let do some config to get it more beautiful.</p>
+
+<h2>config awesome</h2>
+
+<p>There are many config examples in <a href="http://awesome.naquadah.org/wiki/User_Configuration_Files">awesome wiki</a>, and currently I&rsquo;m using the <a href="http://awesome.naquadah.org/wiki/Vicious">vicious</a> configuration files, you can get it from it&rsquo;s <a href="http://git.sysphere.org/">git repo</a>.</p>
+
+<pre><code>$ cd ~/src
+$ git clone http://git.sysphere.org/awesome-configs
+$ git clone http://git.sysphere.org/vicious
+$ cp -r awesome-configs ~/.config/awesome
+$ cp -r vicious ~/.config/awesome/
+</code></pre>
+
+<p>Now we have set the config files, lets reload awesome to see it. <strong>Right click</strong> no the desktop, choose <em>restart</em> to let awesome reload the configuration files. Da da, now we are really in awesome. All the configuration is write in <code>~/.config/awesome/rc.lua</code>, and we can see all the key shortcut in it.</p>
+
+<h2>tweak Ubuntu</h2>
+
+<p>We are not done yet, though we have a beautiful WM to use now, but there are still something we need to do.</p>
+
+<h3>disable desktop background</h3>
+
+<p>Try to open <a href="https://live.gnome.org/Nautilus">Nautilus</a> by pressing <strong><code>Alt + F2</code></strong>, you will see the Ubuntu desktop background show up, and the top task bar is gone, so we need to fix this first.</p>
+
+<p>Install <a href="https://live.gnome.org/GnomeTweakTool">Gnome-tweak-tool</a>:</p>
+
+<pre><code>$ sudo apt-get install gnome-tweak-tool
+</code></pre>
+
+<p>and open it, disable <strong><code>Desktop-&gt;Have file manager handle the desktop</code></strong>, now restart awesome, this time open <strong>Nautilus</strong> is ok.</p>
+
+<h3>auto start gnome-session</h3>
+
+<p>We need to use some gnome service in awesome, like <a href="http://projects.gnome.org/NetworkManager/">Network Manager</a> and <a href="https://live.gnome.org/GnomeKeyring">Gnome keyring</a>, so let&rsquo;s add it to awesome&rsquo;s init file:</p>
+
+<pre><code>$ vim ~/.config/awesome/rc.lua
+# add to bottom
+exec("gnome-keyring-daemon --daemonize --login")
+exec("gnome-session --session=ubuntu")
+</code></pre>
+
+<p>How do I know this? Re-choose <strong>Ubuntu</strong> session when you login, and using <a href="http://htop.sourceforge.net/">htop</a> to see process tree, you will see what&rsquo;s running behind a gnome session, choose the one you like and add it to <code>rc.lua</code>.</p>
+
+<h3>fix the maximize problem</h3>
+
+<p>Some program(like gnome-terminal) can not be really maximized when pressing <strong><code>Win + m</code></strong>, add this to <code>rc.lua</code> will fix this:</p>
+
+<pre><code>size_hints_honor = false
+</code></pre>
+
+<h2>Finally</h2>
+
+<p>I&rsquo;m having fun now. I&rsquo;ll add more tips if I find something cool.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn"><a href="/about" title="About the author (laputa)" rel="author">laputa</a></span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-09-02T00:00:00+09:00" pubdate data-updated="true">Sep 2<span>nd</span>, 2012</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/linux/'>linux</a>, <a class='category' href='/blog/categories/tutorial/'>tutorial</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://laputa.io/blog/2012/09/02/using-awesome-in-ubuntu-12.04/" data-via="justlaputa" data-counturl="http://laputa.io/blog/2012/09/02/using-awesome-in-ubuntu-12.04/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2012/08/30/emacs-raises/" title="Previous Post: Emacs Raises">&laquo; Emacs Raises</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2012/09/02/weekly-review-for-sep.2-2012/" title="next Post: Weekly Review for Sep.2 2012">Weekly Review for Sep.2 2012 &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - laputa -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,356 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: linux | Coding in the Sky]]></title>
+  <link href="http://laputa.io/blog/categories/linux/atom.xml" rel="self"/>
+  <link href="http://laputa.io/"/>
+  <updated>2014-08-12T17:05:25+09:00</updated>
+  <id>http://laputa.io/</id>
+  <author>
+    <name><![CDATA[laputa]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Using Awesome in Ubuntu 12.04]]></title>
+    <link href="http://laputa.io/blog/2012/09/02/using-awesome-in-ubuntu-12.04/"/>
+    <updated>2012-09-02T00:00:00+09:00</updated>
+    <id>http://laputa.io/blog/2012/09/02/using-awesome-in-ubuntu-12.04</id>
+    <content type="html"><![CDATA[<p>I have used <a href="http://www.ubuntu.com/">Ubuntu</a> <a href="http://releases.ubuntu.com/12.04/">12.04</a> for about 1.5 months, and now I&rsquo;m very happy to use it, as I started Linux by <a href="http://fedoraproject.org/">Fedora</a>, and tried many other major <a href="http://distrowatch.com/">distributions</a>, my last distribution was <a href="http://www.gentoo.org/">Gentoo</a>, and I like it very much, still now. After I graduate from school and start my first job, I&rsquo;m very glad that my employer does not care what OS I use, so I can continue using Linux, and this time I choose to try Ubuntu, which I have not used too much before.</p>
+
+<!--more-->
+
+
+<p>Till now, I have used it for nearly two month, and I&rsquo;m happy now. It is simple, <a href="http://unity.ubuntu.com/">Unity</a> is well designed, and it does not influence my work experience, I like it. Of cause I did some <a href="http://justlaputa.github.com/2012/07/install-ubuntu-en.html">tweak to Ubuntu</a> to fit my habit, like disable some keybindings.</p>
+
+<p>But recently, I started to miss one thing, which is the <a href="http://awesome.naquadah.org/">awesome</a> window manager, I miss the <strong><code>Win + n</code></strong> workspace switch shortcut, and I miss it so much. Especially after I have buy a <a href="http://justlaputa.github.com/2012/08/buy-hhkb.html">HHKB</a> lately, and I have to press 4 keys(<strong><code>Fn + Ctrl + Alt + Arrow</code></strong>) to switch workspace in Ubuntu Unity, though I have practiced my finger, but I miss awesome so much and plan to use it in ubuntu. And luckily it is easy.</p>
+
+<p>Here is my experience about install and config awesome in <strong>Ubuntu 12.04</strong>.</p>
+
+<h2>install awesome</h2>
+
+<p>awesome is already in Ubuntu&rsquo;s package source, install it by apt-get:</p>
+
+<pre><code>$ sudo apt-get install awesome
+</code></pre>
+
+<p>so it is easy, isn&rsquo;t it? Let&rsquo;s try it.</p>
+
+<p>logout from ubuntu, and you will get to the <a href="http://wiki.freedesktop.org/wiki/Software/LightDM">lightdm</a> login screen, and click the cycle icon besides your use name, a ha, we get a list of all available sessions to login, and of cause awesome is in the list. So choose <strong>awesome</strong> as the session, and type your password to login. Now you can see the awesome windows manager, yes, it&rsquo;s cool.</p>
+
+<p>But wait, let do some config to get it more beautiful.</p>
+
+<h2>config awesome</h2>
+
+<p>There are many config examples in <a href="http://awesome.naquadah.org/wiki/User_Configuration_Files">awesome wiki</a>, and currently I&rsquo;m using the <a href="http://awesome.naquadah.org/wiki/Vicious">vicious</a> configuration files, you can get it from it&rsquo;s <a href="http://git.sysphere.org/">git repo</a>.</p>
+
+<pre><code>$ cd ~/src
+$ git clone http://git.sysphere.org/awesome-configs
+$ git clone http://git.sysphere.org/vicious
+$ cp -r awesome-configs ~/.config/awesome
+$ cp -r vicious ~/.config/awesome/
+</code></pre>
+
+<p>Now we have set the config files, lets reload awesome to see it. <strong>Right click</strong> no the desktop, choose <em>restart</em> to let awesome reload the configuration files. Da da, now we are really in awesome. All the configuration is write in <code>~/.config/awesome/rc.lua</code>, and we can see all the key shortcut in it.</p>
+
+<h2>tweak Ubuntu</h2>
+
+<p>We are not done yet, though we have a beautiful WM to use now, but there are still something we need to do.</p>
+
+<h3>disable desktop background</h3>
+
+<p>Try to open <a href="https://live.gnome.org/Nautilus">Nautilus</a> by pressing <strong><code>Alt + F2</code></strong>, you will see the Ubuntu desktop background show up, and the top task bar is gone, so we need to fix this first.</p>
+
+<p>Install <a href="https://live.gnome.org/GnomeTweakTool">Gnome-tweak-tool</a>:</p>
+
+<pre><code>$ sudo apt-get install gnome-tweak-tool
+</code></pre>
+
+<p>and open it, disable <strong><code>Desktop-&gt;Have file manager handle the desktop</code></strong>, now restart awesome, this time open <strong>Nautilus</strong> is ok.</p>
+
+<h3>auto start gnome-session</h3>
+
+<p>We need to use some gnome service in awesome, like <a href="http://projects.gnome.org/NetworkManager/">Network Manager</a> and <a href="https://live.gnome.org/GnomeKeyring">Gnome keyring</a>, so let&rsquo;s add it to awesome&rsquo;s init file:</p>
+
+<pre><code>$ vim ~/.config/awesome/rc.lua
+# add to bottom
+exec("gnome-keyring-daemon --daemonize --login")
+exec("gnome-session --session=ubuntu")
+</code></pre>
+
+<p>How do I know this? Re-choose <strong>Ubuntu</strong> session when you login, and using <a href="http://htop.sourceforge.net/">htop</a> to see process tree, you will see what&rsquo;s running behind a gnome session, choose the one you like and add it to <code>rc.lua</code>.</p>
+
+<h3>fix the maximize problem</h3>
+
+<p>Some program(like gnome-terminal) can not be really maximized when pressing <strong><code>Win + m</code></strong>, add this to <code>rc.lua</code> will fix this:</p>
+
+<pre><code>size_hints_honor = false
+</code></pre>
+
+<h2>Finally</h2>
+
+<p>I&rsquo;m having fun now. I&rsquo;ll add more tips if I find something cool.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Newly Install Ubuntu]]></title>
+    <link href="http://laputa.io/blog/2012/07/30/newly-install-ubuntu/"/>
+    <updated>2012-07-30T00:00:00+09:00</updated>
+    <id>http://laputa.io/blog/2012/07/30/newly-install-ubuntu</id>
+    <content type="html"><![CDATA[<h1>Replace my work environment to Ubuntu</h1>
+
+<p>Just some notes for my newly installed Ubuntu Linux configuration, use it if this helps.</p>
+
+<!--more-->
+
+
+<h2>install ubuntu and upgrade</h2>
+
+<p>I installed <a href="http://www.ubuntu.com/">Ubuntu 12.04</a> using live usb, createed by <a href="http://www.linuxliveusb.com/">LinuxLive USB Creator</a>, after install:</p>
+
+<pre><code>sudo apt-get update
+sudo apt-get upgrade
+</code></pre>
+
+<h2>System config</h2>
+
+<h3>add user to sudo</h3>
+
+<p>Don&rsquo;t know why, in Ubuntu 12.04 you should add the username at the last line, otherwise it won&rsquo;t work</p>
+
+<pre><code>sudo visudo
+# add at bottom line
+username  ALL=(ALL)NOPASSWD:ALL
+</code></pre>
+
+<h3>disable ALT key shortcut</h3>
+
+<p>Sometimes it is annoying to see the HUD window when pressing ALT key, disable like this:</p>
+
+<pre><code>Settings-&gt;keyboard-&gt;shortcuts-&gt;key to show the HUD-&gt;(press backspace to disable)
+</code></pre>
+
+<h3>disable ALT key on gnome-terminal</h3>
+
+<p>I use zsh and emacs key-binding, so I use alt key a lot, but this is bind to show Menu item in gnome-terminal, disable it like this:</p>
+
+<pre><code>Open gnome-terminal:
+Edit-&gt;Keyboard Shortcuts-&gt;Uncheck menu access keys
+</code></pre>
+
+<h3>change ubuntu tooltip color</h3>
+
+<p>By default, the tooltip window color is white-on-black, which is not so cheerful, especially when you are using Eclipse. Change the color to black-on-yellow like this:</p>
+
+<pre><code>vim /usr/share/themes/Ambiance/gtk-2.0/gtkrc
+gtk-color-scheme = "base_color:#ffffff\nfg_color:#4c4c4c\ntooltip_fg_color:#000000\nselected_bg_color:#f07746\nselected_fg_color:#FFFFFF\ntext_color:#3C3C3C\nbg_color:#F2F1F0\ntooltip_bg_color:#ffffaf\nlink_color:#DD4814"
+</code></pre>
+
+<p>Note that <code>Ambiance</code> is the default gtk color theme, if you are using other theme, edit the corresponding <code>gtkrc</code> file. Log out or restart to see the change.</p>
+
+<h3>auto hide launcher</h3>
+
+<pre><code>Settings-&gt;Appearance-&gt;Behavior-&gt;turn on auto hide
+</code></pre>
+
+<h2>Software</h2>
+
+<h3>common:</h3>
+
+<pre><code>sudo apt-get install vim emacs emacs-goodies-el zsh tmux
+## if you use zsh
+chsh -s /bin/zsh
+</code></pre>
+
+<h3>git</h3>
+
+<pre><code>sudo apt-get install git gitk
+git config --global user.name my_name
+git config --global user.email my_name@some.mail.com
+git config --global color.ui auto
+</code></pre>
+
+<p>I host my home config files on <a href="https://github.com/justlaputa">github</a>, so add this to my home directory</p>
+
+<pre><code>cd ~
+git init
+git remote add origin git@github.com:justlaputa/home-config.git
+git fetch origin
+git checkout -t origin/master
+</code></pre>
+
+<h3>maven</h3>
+
+<pre><code>sudo apt-get install maven
+</code></pre>
+
+<h3>chrome</h3>
+
+<p>Download deb file from google <a href="https://www.google.com/chrome/">official site</a>, or if you want to use unstable release, download from <a href="http://www.chromium.org/getting-involved/dev-channel/">Chrome Release Channel</a>, double click the deb file, it will be installed automatically.</p>
+
+<h3>java</h3>
+
+<p>   download from oracle <a href="http://www.oracle.com/technetwork/java/javase/downloads/index.html">jdk site</a>, see this <a href="https://help.ubuntu.com/community/Java#Oracle_.28Sun.29_Java_6">tutorial</a> to config java</p>
+
+<pre><code>sudo sh jdk-6u33-linux-i586.bin
+sudo mv jdk1.6.0_33 /usr/java
+sudo ln -s jdk1.6.0_33 default
+</code></pre>
+
+<p> config environment variable in your bash config file(or zsh profile)</p>
+
+<pre><code>vim ~/.baserc
+JAVA_HOME=/usr/java/default
+export JAVA_HOME
+</code></pre>
+
+<p> config java</p>
+
+<pre><code>sudo update-alternatives --install "/usr/bin/java" "java" "/usr/java/default/bin/java" 1
+sudo update-alternatives --config java
+(select 1)
+</code></pre>
+
+<p> do the same to <strong>javac</strong>, <strong>javasw</strong>, <strong>libjavaplugin.so</strong>, see the above link, then check java version:</p>
+
+<pre><code> java -version
+ javac -version
+</code></pre>
+
+<h3>eclipse</h3>
+
+<p> download from <a href="http://eclipse.org/downloads/">official site</a></p>
+
+<pre><code>mkdir ~/dev
+cd ~/dev
+tar xzf ~/Downloads/eclipse-jee-juno-linux-gtk.tar.gz
+</code></pre>
+
+<h4>eclipse plugins</h4>
+
+<ul>
+<li><a href="http://wiki.eclipse.org/Jetty_WTP_Plugin/Jetty_WTP_Install">jetty wtp</a></li>
+</ul>
+
+
+<h2>Other software</h2>
+
+<h3>fcitx &ndash; input method</h3>
+
+<pre><code>sudo apt-get install fcitx
+</code></pre>
+
+<p>open <strong>Input Method Swithcher</strong>, and select fcitx, re-login or restart.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[初探Gstreamer SDK]]></title>
+    <link href="http://laputa.io/blog/2012/07/10/try-gstreamer-sdk/"/>
+    <updated>2012-07-10T00:00:00+09:00</updated>
+    <id>http://laputa.io/blog/2012/07/10/try-gstreamer-sdk</id>
+    <content type="html"><![CDATA[<p><a href="http://gstreamer.com/">Gstreamer SDK</a> 已经发布一段时间了，一直苦于没有Linux机器，也就没有尝试。现在有机会了，于是就跟着<a href="http://docs.gstreamer.com/display/GstSDK/Tutorials">官方教程</a>来试试。</p>
+
+<p>这里只介绍在Fedora Linux下如何安装以及使用Gstreamer SDK，其他发行版可以根据教程来，应该大同小异。</p>
+
+<!--more-->
+
+
+<h2>安装SDK</h2>
+
+<p>首先把gstreamer的repo下载并放到yum的repo.d 文件夹中，然后就能安装 sdk 了：</p>
+
+<pre><code>$ wget http://www.freedesktop.org/software/gstreamer-sdk/data/packages/2012.5/fedora/gstreamer-sdk.repo
+$ sudo cp gstreamer-sdk.repo /etc/yum.repo.d/
+$ sudo yum install gstreamer-sdk-devel
+</code></pre>
+
+<p>gstreamer 的 sdk 会被安装在 /opt/gstreamer-sdk 下，我们可以简单看看 sdk 帮我们安装了哪些东西。在 /opt/gstreamer-sdk 目录下，基本是一个完整的编译环境：</p>
+
+<pre><code>$ ls /opt/gstreamer-sdk
+bin/  etc/  include/  lib/  libexec/  share/
+</code></pre>
+
+<p><strong>bin</strong> 下面是一些帮助程序，包括了常用的 <em>gst-inspect</em> 和 <em>gst-launch</em>。<strong>include</strong> 目录下包含了编译 gstremer 程序所需要的头文件，包括 <em>gtk</em>, <em>glib</em>, 甚至很多解码库的头文件也有，比如 <em>FLAC</em>, <em>speex</em> 等，而 <strong>lib</strong> 目录下包含了众多静态和动态库文件也是可想而知的了。可见　SDK 只是提供了编译时的依赖，使得　gstreamer 程序能够顺利编译通过。</p>
+
+<h2>编译示例代码</h2>
+
+<p>sdk 中已经包括了一些示例源代码，将/opt/gstreamer-sdk/share/gst-sdk/tutorials 复制到工作目录，或者直接从官方的 git 仓库　clone　一个：</p>
+
+<pre><code>$ git clone git://anongit.freedesktop.org/gstreamer-sdk/gst-sdk-tutorials
+</code></pre>
+
+<p>进入到工作目录，根据教程的指示，在编译之前需要运行　sdk　提供的一个脚本配置好编译环境：</p>
+
+<pre><code>$ cd ~/workspace/gst-sdk/tutorials
+$ /opt/gstreamer-sdk/bin/gst-sdk-shell
+</code></pre>
+
+<p>我们可以简单看看这个　shell　脚本做了什么：</p>
+
+<pre><code>#!/bin/sh
+
+export XDG_CONFIG_DIRS="/opt/gstreamer-sdk/etc/xdg${XDG_CONFIG_DIRS:+:$XDG_CONFIG_DIRS}:/etc/xdg"
+export LDFLAGS="-L/opt/gstreamer-sdk/lib ${LDFLAGS}"
+export XDG_DATA_DIRS="/opt/gstreamer-sdk/share${XDG_DATA_DIRS:+:$XDG_DATA_DIRS}:/usr/local/share:/usr/share"
+export PYTHONPATH="/opt/gstreamer-sdk/lib/python2.7/site-packages${PYTHONPATH:+:$PYTHONPATH}"
+export GIO_EXTRA_MODULES="/opt/gstreamer-sdk/lib/gio/modules"
+export CXXFLAGS="-I/opt/gstreamer-sdk/include ${CXXFLAGS}"
+export GST_PLUGIN_SCANNER="/opt/gstreamer-sdk/libexec/gstreamer-0.10/gst-plugin-scanner"
+export CFLAGS="-I/opt/gstreamer-sdk/include ${CFLAGS}"
+export PKG_CONFIG_PATH="/opt/gstreamer-sdk/lib/pkgconfig:/opt/gstreamer-sdk/share/pkgconfig${PKG_CONFIG_PATH:+:$PKG_CONFIG_PATH}"
+export PATH="/opt/gstreamer-sdk/bin${PATH:+:$PATH}:/usr/local/bin:/usr/bin:/bin"
+export GST_REGISTRY="${HOME}/.gstreamer-0.10/gstreamer-sdk-registry"
+export LD_LIBRARY_PATH="/opt/gstreamer-sdk/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+
+
+$SHELL "$@"
+</code></pre>
+
+<p>可以看到这个 shell　帮我们设置了很多环境变量，而这些环境变量几乎都是跟编译有关的，比较重要的几个是　<em>LDFLAGS</em>, <em>CXXFLAGS</em>, <em>CFLAGS</em>, <em>PATH</em>, 他们都把　/opt/gstreamer-sdk 下的相应目录添加到了这些变量中，为的就是在编译源码时能够引用到这些文件。</p>
+
+<p>运行完这个脚本后，就可以开始编译示例代码了</p>
+
+<pre><code>$ gcc basic-tutorial-1.c -o basic-tutorial-1 `pkg-config --cflags --libs gstreamer-0.10`
+</code></pre>
+
+<p>可以看看后面的　pkg-config 命令得到的是哪些参数：</p>
+
+<pre><code>$ pkg-config --cflags --libs gstreamer-0.10
+-pthread -I/opt/gstreamer-sdk/include/gstreamer-0.10 -I/opt/gstreamer-sdk/include/glib-2.0 -I/opt/gstreamer-sdk/lib/glib-2.0/include -I/opt/gstreamer-sdk/include/libxml2  -pthread -L/opt/gstreamer-sdk/lib -lgstreamer-0.10 -lgobject-2.0 -lgmodule-2.0 -lgthread-2.0 -lrt -lxml2 -lglib-2.0
+</code></pre>
+
+<p>记得上面的　gst-sdk-shell 脚本中设置了　<em>PKG_CONFIG_PATH</em> 这个变量，于是这里在运行　pkg-config 命令的时候，也是使用的 sdk 目录下的　pkgconfig 文件。现在我们可以试着运行编译出的程序:</p>
+
+<pre><code>$ ./basic-tutorial-1
+
+(basic-tutorial-1:2928): GStreamer-CRITICAL **: gst_element_set_state: assertion `GST_IS_ELEMENT (element)' failed
+
+(basic-tutorial-1:2928): GStreamer-CRITICAL **: gst_element_get_bus: assertion `GST_IS_ELEMENT (element)' failed
+
+(basic-tutorial-1:2928): GStreamer-CRITICAL **: gst_bus_timed_pop_filtered: assertion `GST_IS_BUS (bus)' failed
+
+(basic-tutorial-1:2928): GStreamer-CRITICAL **: gst_object_unref: assertion `object != NULL' failed
+
+(basic-tutorial-1:2928): GStreamer-CRITICAL **: gst_element_set_state: assertion `GST_IS_ELEMENT (element)' failed
+
+(basic-tutorial-1:2928): GStreamer-CRITICAL **: gst_object_unref: assertion `object != NULL' failed
+</code></pre>
+
+<p>发现并不能运行，原因是当前我们在 sdk-shell 所设置的环境中，而这个环境已经改变了　<em>LD_LIBRARY_PATH</em> 的值，在运行 basic-tutorial-1 的时候，gstreamer 会在 LD_LIBRARY_PATH 指定的目录中寻找所有插件的动态库，我们在这里可以尝试运行　gst-inspect:</p>
+
+<pre><code>$ echo $LD_LIBRARY_PATH
+/opt/gstreamer-sdk/lib
+$ gst-inspect | less
+</code></pre>
+
+<p>可以发现在其中是找不到　<em>playbin2</em> 的，原因就是因为　sdk 的　lib 目录中没有　libgstplaybin.so　这个动态库。切换到另一个没有运行过 gst-sdk-shell　的终端，或者直接退出重新开终端，试着运行一下　basic-tutorial-1　这个程序，如果你的系统安装了　gstreamer　的话，这个程序应该是能跑起来的。</p>
+
+<p>这时我们可以充分体会　sdk 只是提供了编译环境，而非运行环境了。实际上，只要你的系统安装了 gstreamer-devel，不需要运行上述的 sdk-shell　也能编译，并且能直接运行编译好的程序，但是这依赖于系统安装了 gstreamer　的编译以及运行环境，这也是以前开发gstreamer　应用的方式。sdk 的好处在于便于分发，以及统一跨平台的开发，类似　android 的开发环境，保证编译通过就能扔到手机上跑，所以还是很期待　gstreamer sdk　出　android 版本的。</p>
+]]></content>
+  </entry>
+  
+</feed>

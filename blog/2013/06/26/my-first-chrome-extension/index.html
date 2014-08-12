@@ -1,0 +1,203 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>My first chrome extension - Coding in the Sky</title>
+  <meta name="author" content="laputa">
+
+  
+  <meta name="description" content="Yesterday I just published my first chrome extension Jenkins Monitor in Chrome Webstore, finally. I checker my commit history in Github, it was &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://laputa.io/blog/2013/06/26/my-first-chrome-extension">
+  <link href="/favicon.ico" rel="icon">
+  
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Coding in the Sky" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   class="no-sidebar"  >
+  <header role="banner"><hgroup>
+  <h1>Coding in the Sky</h1>
+  
+    <h2><a href="/">Never wait</a></h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation">
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:laputa.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">My First Chrome Extension</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-06-26T21:02:00+09:00" pubdate data-updated="true">Jun 26<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>Yesterday I just published my first chrome extension <em>Jenkins Monitor</em> in <a href="https://chrome.google.com/webstore/detail/jenkins-monitor/chhebdmlkojbdgadopnedfmoapbeiofi">Chrome Webstore</a>, finally.</p>
+
+<p>I checker my <a href="https://github.com/justlaputa/jenkins-monitor/commits/master">commit history</a> in <a href="https://github.com/justlaputa/jenkins-monitor">Github</a>, it was started at <strong>Apr 24</strong>, and after almost 2 months, I released and published the first version, though it only has very simple and limited features.</p>
+
+<!--more-->
+
+
+<p>The idea is from my daily work, my team use <a href="http://jenkins-ci.org/">Jenkins CI</a> every day to build and test our project. Our Jenkins is hosted on <a href="https://aws.amazon.com/ec2/">EC2</a>, and the hardware is not so powerful(maybe micro instance, not sure). So sometimes it is very slow to load the Jenkins web page in our browser. Then I decide to find some way to solve this problem. Luckily, Jenkins has <a href="https://wiki.jenkins-ci.org/display/JENKINS/Remote+access+API">REST API</a>, and I&rsquo;m doing front-end development for some time, making a chrome extension to use the REST API would be a good solution, and I was always thinking to try to develop a chrome extension. So I just started this project, easily.</p>
+
+<p>Still, it surprised me at the first that Chrome Extension development is so easy, all the things I need is just front-end web development technology. HTML, CSS, JS, it is just like make web pages. Thanks to my job, I use them everyday. What&rsquo;s more, I have powerful tools to help me make this extension, like <a href="http://jquery.com/">jQuery</a>, <a href="http://twitter.github.io/bootstrap/">Bootstrap</a>, <a href="http://fortawesome.github.io/Font-Awesome/">Font Awesome</a>, <a href="http://handlebarsjs.com/">Handlebars</a>, <a href="http://gruntjs.com/">Gruntjs</a>, etc.</p>
+
+<p>These tools saved my a lot of time, and makes the implementation simple. I just need to use jQuery <a href="http://api.jquery.com/jQuery.ajax/">ajax</a> call to get all jobs data from jenkins API, then feed the data to handlebar compiled templates, then I have a jenkins jobs list rendered by properly by Bootstrap css:</p>
+
+<p><img src="https://lh3.googleusercontent.com/-NKsuyHoB4tc/UcrwpFDiI7I/AAAAAAAAA2g/gcsqCiIXSUw/w1117-h698-no/Screen+Shot+2013-06-24+at+10.36.30+PM.png" title="Jenkins job list" alt="Jenkins Job List" /></p>
+
+<p>Then I want to automatically update the jobs data from jenkins server, I need a timer. I found that I can use chrome extension <a href="http://developer.chrome.com/extensions/alarms.html">alarm</a> API to achieve this.</p>
+
+<p>Last feature before I can release is <em>Notification</em>, I want my jenkins monitor to notify me when there are jobs <code>added/removed/start/done</code>. Not surprisingly, chrome supports <a href="http://developer.chrome.com/extensions/desktop_notifications.html">Desktop Notification</a>, which is just like <a href="http://www.html5rocks.com/en/tutorials/notifications/quick/">HTML5 Notification API</a>, it is quite simple to use and I just use one after work night to implement this:</p>
+
+<p><img src="https://lh3.googleusercontent.com/-zOOMaQu8ZRo/Ucrwq0p8UfI/AAAAAAAAA2o/MPkDGcFo6lQ/w640-h400-no/Screen+Shot+2013-06-24+at+11.04.31+PM.png%20notification" alt="Jenkins monitor notification" /></p>
+
+<p>That&rsquo;s all I need for now! I already asked my colleague to try it and he says it is good. Though it does not have much features,  I still decide to publish it to the chrome webstore. I think making progress is good for me, and I already have plan to improve it in the <a href="https://github.com/justlaputa/jenkins-monitor/issues?milestone=1&amp;page=1&amp;state=open">next version</a>.</p>
+
+<p>If you are interested to try, just install it from <a href="https://chrome.google.com/webstore/detail/jenkins-monitor/chhebdmlkojbdgadopnedfmoapbeiofi">chrome web store</a>, and of cause code contribution is welcomed in <a href="https://github.com/justlaputa/jenkins-monitor/issues?milestone=&amp;page=1&amp;state=open">github</a>.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn"><a href="/about" title="About the author (laputa)" rel="author">laputa</a></span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-06-26T21:02:00+09:00" pubdate data-updated="true">Jun 26<span>th</span>, 2013</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/project/'>project</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://laputa.io/blog/2013/06/26/my-first-chrome-extension/" data-via="justlaputa" data-counturl="http://laputa.io/blog/2013/06/26/my-first-chrome-extension/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2013/05/14/blog-url-changed/" title="Previous Post: Blog URL changed">&laquo; Blog URL changed</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2014/08/12/my-tool-stack/" title="next Post: My tool stack">My tool stack &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - laputa -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

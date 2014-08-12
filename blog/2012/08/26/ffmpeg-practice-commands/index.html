@@ -1,0 +1,279 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>FFmpeg Practice Commands - Coding in the Sky</title>
+  <meta name="author" content="laputa">
+
+  
+  <meta name="description" content="Convert video for HTC Desire by FFmpeg ffmpeg -i inputfile.mpg \
+-aspect 16:9 -s 800x480 \
+-vcodec libx264 -b 480k -vpre slow_firstpass -vpre &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://laputa.io/blog/2012/08/26/ffmpeg-practice-commands">
+  <link href="/favicon.ico" rel="icon">
+  
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Coding in the Sky" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   class="no-sidebar"  >
+  <header role="banner"><hgroup>
+  <h1>Coding in the Sky</h1>
+  
+    <h2><a href="/">Never wait</a></h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation">
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:laputa.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">FFmpeg Practice Commands</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-08-26T00:00:00+09:00" pubdate data-updated="true">Aug 26<span>th</span>, 2012</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><!--more-->
+
+
+<h2>Convert video for HTC Desire by FFmpeg</h2>
+
+<pre><code>ffmpeg -i inputfile.mpg \
+-aspect 16:9 -s 800x480 \
+-vcodec libx264 -b 480k -vpre slow_firstpass -vpre baseline -r 13 \
+-acodec libfaac -ab 128k -sameq \
+-pass 1 -f rawvideo -an -y /dev/null &amp;&amp; \
+ffmpeg -i inputfile.mpg \
+-aspect 16:9 -s 800x480 \
+-vcodec libx264 -b 480k -vpre slow -vpre baseline -r 13 \
+-acodec libfaac -ab 128k -ac 2 -sameq \
+-pass 2 outputfile.mp4
+
+ffmpeg -y -i Pixar.Short.Films.Collection.2008.Presto.1080p.BluRay.x264.AC3-WiKi.mkv  -s 800x450 -aspect 16:9 -r 24000/1001 -b 480k -vcodec libx264 -pass 1 -vpre fast_firstpass -vpre baseline -an -f rawvideo /dev/null &amp;&amp; ffmpeg -y -i Pixar.Short.Films.Collection.2008.Presto.1080p.BluRay.x264.AC3-WiKi.mkv -s 800x450 -aspect 16:9 -r 24000/1001 -b 480k -vcodec libx264  -vpre slow -vpre baseline -acodec libfaac -ar 32k -ab 128k -ac 2 -sameq -pass 2 out.mp4
+
+ffmpeg -y -i Pixar.Short.Films.Collection.2008.Presto.1080p.BluRay.x264.AC3-WiKi.mkv  -s 320x180 -vf pad=320:240:0:30 -r 24000/1001 -b 240k -vcodec libx264 -pass 1 -vpre fast_firstpass -vpre baseline -an -f rawvideo /dev/null &amp;&amp; ffmpeg -y -i Pixar.Short.Films.Collection.2008.Presto.1080p.BluRay.x264.AC3-WiKi.mkv -s 320x180 -vf pad=320:240:0:30 -r 24000/1001 -b 240k -vcodec libx264  -vpre slow -vpre baseline -acodec libfaac -ar 32k -ab 128k -ac 2 -sameq -pass 2 out_320x240.mp4
+</code></pre>
+
+<h2>keep ratio</h2>
+
+<p>  ffmpeg -filters:</p>
+
+<p>  Pad input image to width:height[:x:y[:color]] (default x and y: 0, default color: black). from 1920x1080 to 800x480</p>
+
+<pre><code>ffmpeg -i in -s 800x450 -vf pad=800:480:0:15 out
+</code></pre>
+
+<h2>tricks</h2>
+
+<ul>
+<li><p> grab screen</p>
+
+<pre><code>ffmpeg -f x11grab -r 25 -s wxga -i :0.0 /tmp/outputFile.mpg
+</code></pre></li>
+<li><p> extrac image</p>
+
+<p>   1 image per second(default is 25 without -r)</p>
+
+<pre><code>ffmpeg -i test.mpg -r 1 image%d.jpg
+</code></pre></li>
+<li><p> image to video</p>
+
+<pre><code>ffmpeg -f image2 -i img%d.jpg /tmp/a.mpg
+</code></pre></li>
+<li><p> capture from cam and mic</p>
+
+<pre><code>ffmpeg -f oss -i /dev/dsp -f video4linux2 -s 320x240 -i /dev/video0 out.mpg
+</code></pre></li>
+</ul>
+
+
+<h2>configure options</h2>
+
+<ul>
+<li><p> install:</p>
+
+<p>  dependence: yasm faad2-devel faac-devel lame-devel opencore-amr-devel openjpeg-devel libtheora-devel libvpx-devel libvorbis-devel xvidcore-devel</p>
+
+<pre><code>./configure --prefix=/usr --disable-static --enable-shared --enable-gpl --enable-version3 --enable-nonfree --enable-postproc --enable-x11grab --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libfaac --enable-libmp3lame --enable-libopenjpeg --enable-libtheora --enable-libvorbis --enable-libvpx --enable-libx264 --enable-libxvid --disable-debug
+
+(optional) --enable-libvo-aacenc --enable-libvo-amrwbenc
+
+make &amp;&amp; sudo make install
+</code></pre></li>
+<li><p> build &amp; install libx264</p>
+
+<pre><code>./configure --prefix=/usr --enable-shared
+make &amp;&amp; sudo make install
+</code></pre></li>
+<li><p> reconfigure ffmpeg add &mdash;enable-libx264</p>
+
+<pre><code>make &amp;&amp; make 
+</code></pre></li>
+</ul>
+
+
+<h2>install libvo-aacenc libvo-amrwbenc</h2>
+
+<ul>
+<li><p> get from opencore-amr sourceforge</p></li>
+<li><p> install:</p>
+
+<pre><code>$ autoreconf
+$ ./configure
+$ make &amp;&amp; sudo make install
+</code></pre></li>
+</ul>
+
+
+<h2>output rtp</h2>
+
+<pre><code>ffmpeg -re -i ~/Videos/test/Ice.Age.Continental.Drift_CIF_352x288.mp4 \
+-an -vcodec libx264 -r 20 -g 45 -s 352x288 -deinterlace -f rtp rtp://127.0.0.1:9012 \
+-vn -acodec libfaac -ac 2 -ab 192k -ar 44100 -async 1 -flags +global_header -f rtp rtp://127.0.0.1:9014rtp://127.0.0.1:9014
+</code></pre>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn"><a href="/about" title="About the author (laputa)" rel="author">laputa</a></span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-08-26T00:00:00+09:00" pubdate data-updated="true">Aug 26<span>th</span>, 2012</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/tips-and-tricks/'>Tips&Tricks</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://laputa.io/blog/2012/08/26/ffmpeg-practice-commands/" data-via="justlaputa" data-counturl="http://laputa.io/blog/2012/08/26/ffmpeg-practice-commands/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2012/08/26/emacs-tips-tricks/" title="Previous Post: Emacs Tips&Tricks">&laquo; Emacs Tips&Tricks</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2012/08/30/emacs-raises/" title="next Post: Emacs Raises">Emacs Raises &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - laputa -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

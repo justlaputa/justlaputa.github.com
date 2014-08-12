@@ -1,0 +1,272 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Emacs Org-mode Cheat Sheet - Coding in the Sky</title>
+  <meta name="author" content="laputa">
+
+  
+  <meta name="description" content="Keybindings General | Visibility cycling | |
+| &lt;TAB&gt; | Rotate current subtree |
+| S-&lt;TAB&gt; and C-u &lt;TAB&gt; | Rotate entire buffer &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://laputa.io/blog/2012/08/26/emacs-org-mode-cheat-sheet">
+  <link href="/favicon.ico" rel="icon">
+  
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Coding in the Sky" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   class="no-sidebar"  >
+  <header role="banner"><hgroup>
+  <h1>Coding in the Sky</h1>
+  
+    <h2><a href="/">Never wait</a></h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation">
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:laputa.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Emacs Org-mode Cheat Sheet</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-08-26T00:00:00+09:00" pubdate data-updated="true">Aug 26<span>th</span>, 2012</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><!--more-->
+
+
+<h2>Keybindings</h2>
+
+<h3>General</h3>
+
+<pre><code>| Visibility cycling    |                                                 |
+| &lt;TAB&gt;                 | Rotate current subtree                          |
+| S-&lt;TAB&gt; and C-u &lt;TAB&gt; | Rotate entire buffer                            |
+| C-u C-u C-u &lt;TAB&gt;     | Show all                                        |
+|-----------------------+-------------------------------------------------|
+| Move between heading  |                                                 |
+| C-c C-n               | Next heading                                    |
+| C-c C-p               | Previous Heading                                |
+| C-c C-f               | Next heading same level                         |
+| C-c C-b               | Previous Heading same level                     |
+| C-c C-u               | Backward to higher level heading                |
+|-----------------------+-------------------------------------------------|
+| Structure editing     |                                                 |
+| M-&lt;RET&gt;               | Insert new heading with same level as current   |
+| M-S-&lt;RET&gt;             | Insert new TODO entry                           |
+| &lt;TAB&gt;                 | Cycle through levels in empty entry             |
+| M-&lt;left&gt;/&lt;right&gt;      | Promote/demote current heading by one level     |
+| M-S-&lt;left&gt;/&lt;right&gt;    | Promote/demote current subtree by one level     |
+| M-S-&lt;up&gt;/&lt;down&gt;       | Move subtree up/down                            |
+| C-c C-w               | Refile entry or region to different location    |
+| C-x n s/w             | Narrow buffer to current subtree/widen it again |
+|-----------------------+-------------------------------------------------|
+| Sparse trees          |                                                 |
+| C-c /                 |                                                 |
+| C-c / r               |                                                 |
+|-----------------------+-------------------------------------------------|
+| Plain lists           |                                                 |
+| '-' '+' '*'           | Unordered list                                  |
+| '1.' '1)'             | Ordered list                                    |
+| '::'                  | Description list                                |
+| &lt;TAB&gt;                 | Fold items                                      |
+| M-&lt;RET&gt;               | Insert new items                                |
+| M-S-&lt;RET&gt;             | Insert new items with a checkbox                |
+| M-S-&lt;up&gt;/&lt;down&gt;       | Move item up/down                               |
+| M-&lt;left&gt;/&lt;right&gt;      | Decrease/increase indentation of item           |
+| M-S-&lt;left&gt;/&lt;right&gt;    | Decrease/increase including subitems            |
+| C-c C-c               | Toggle checkbox                                 |
+| C-c -                 | Cycle item bullets('-','+','*','1.','1)')       |
+|-----------------------+-------------------------------------------------|
+| Footnotes             |                                                 |
+| C-c C-x f             | Footnote action command                         |
+| C-c C-c               | Jump between definition and reference           |
+|-----------------------+-------------------------------------------------|
+</code></pre>
+
+<h3>Tables</h3>
+
+<pre><code>| C-c |                        | convert and active region to table, create new table if no active region |
+| C-c C-c                      | Re-align table without moveing the cursor                                |
+| &lt;TAB&gt;                        | Re-align and move to next field                                          |
+| S-&lt;TAB&gt;                      | Re-align and move to previous field                                      |
+| &lt;RET&gt;                        | Re-align and move down to next row                                       |
+|------------------------------+--------------------------------------------------------------------------|
+| Column and row editing       |                                                                          |
+| M-&lt;left&gt;/&lt;right&gt;             | Move current column left/right                                           |
+| M-S-&lt;left&gt;                   | Kill current column                                                      |
+| M-S-&lt;right&gt;                  | Insert new column to the left of cursor                                  |
+| M-&lt;up&gt;/&lt;down&gt;                | Move current row up/down                                                 |
+| M-S-&lt;up&gt;                     | Kill current row                                                         |
+| M-S-&lt;down&gt;                   | Insert new row above current                                             |
+| C-c -                        | Insert horizontal line below current                                     |
+| C-c &lt;RET&gt;                    | Insert horizontal line below and move to it                              |
+| C-c ^                        | Sort table lines                                                         |
+</code></pre>
+
+<h3>Hyperlinks</h3>
+
+<pre><code>| C-c l   | Store a link                                |
+| C-c C-l | Insert a link                               |
+| C-c C-l | Edit links when cursor on the link          |
+| C-c C-o | Open link                                   |
+| C-c &amp;   | Jump back to recorded position(Using C-c %) |
+</code></pre>
+
+<h3>TODO Items</h3>
+
+<pre><code>| C-c C-t          | Rotate TODO states               |
+| S-&lt;right&gt;/&lt;left&gt; | Select following/preceding state |
+| C-c / t          | View TODO items in sparse tree   |
+| C-c a t          | Show global TODO list            |
+| S-M-&lt;RET&gt;        | Insert new TODO entry            |
+| C-c ,            | Set priority                     |
+| S-&lt;up&gt;/&lt;down&gt;    | Increase/decrease priority       |
+</code></pre>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn"><a href="/about" title="About the author (laputa)" rel="author">laputa</a></span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-08-26T00:00:00+09:00" pubdate data-updated="true">Aug 26<span>th</span>, 2012</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/emacs/'>emacs</a>, <a class='category' href='/blog/categories/tips/'>tips</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://laputa.io/blog/2012/08/26/emacs-org-mode-cheat-sheet/" data-via="justlaputa" data-counturl="http://laputa.io/blog/2012/08/26/emacs-org-mode-cheat-sheet/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2012/08/08/eclipse-emacs/" title="Previous Post: Eclipse & Emacs">&laquo; Eclipse & Emacs</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2012/08/26/emacs-tips-tricks/" title="next Post: Emacs Tips&Tricks">Emacs Tips&Tricks &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - laputa -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: review | Coding in the Sky]]></title>
+  <link href="http://laputa.io/blog/categories/review/atom.xml" rel="self"/>
+  <link href="http://laputa.io/"/>
+  <updated>2014-08-12T17:05:25+09:00</updated>
+  <id>http://laputa.io/</id>
+  <author>
+    <name><![CDATA[laputa]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Monthly Review for Dec]]></title>
+    <link href="http://laputa.io/blog/2012/12/25/monthly-review-for-dec/"/>
+    <updated>2012-12-25T21:47:00+09:00</updated>
+    <id>http://laputa.io/blog/2012/12/25/monthly-review-for-dec</id>
+    <content type="html"><![CDATA[<p>I checked that my last review is in September, so I guess this should be a 3-Months Review, but I barely remember what I have done in October and November, I&rsquo;ll try to recall what I have done in this month.</p>
+
+<!--more-->
+
+
+<h2>Jasmine</h2>
+
+<p>I have continued to learn <a href="http://pivotal.github.com/jasmine/">Jasmine</a>, and also given a <a href="https://speakerdeck.com/justlaputa/lt-jasmine">lighting talk</a> about it.</p>
+
+<p>Also I have worked on <a href="https://github.com/velesin/jasmine-jquery">jasmine-jquery</a> and did some <a href="https://github.com/velesin/jasmine-jquery/pulls/justlaputa?direction=desc&amp;page=1&amp;sort=created&amp;state=closed">contribution</a> to this pretty library.</p>
+
+<h2>Testem</h2>
+
+<p>When learning <a href="https://github.com/airportyh/testem">Test'em</a>, I started to learn <a href="http://nodejs.org/">node.js</a>. Node.js is awesome, and Test'em really saved my time. I completely switched from <a href="https://code.google.com/p/js-test-driver/">JsTD</a> to test'em, it&rsquo;s easy to config, fast, supports <a href="https://code.google.com/p/js-test-driver/">RequireJS</a> elegantly, and very cool. I started to do real <a href="https://en.wikipedia.org/wiki/Test-driven_development">TDD</a> now.</p>
+
+<p>For using it, I also learned something about <a href="http://phantomjs.org/">PhantomJS</a> and <a href="https://en.wikipedia.org/wiki/Code_coverage">code coverage</a>, and try to write a <a href="http://ltp.sourceforge.net/test/coverage/lcov.readme.php">lcov</a> reporter for <a href="https://github.com/richardbutler/testem-coverage-sandbox/pull/1">jasmine</a>, it&rsquo;s interesting stuff.</p>
+
+<h2>Lighting Talking</h2>
+
+<p>Give a <a href="https://speakerdeck.com/justlaputa/scope-and-hoisting-in-javascript">lighting talking</a> about <a href="http://www.adequatelygood.com/2010/2/JavaScript-Scoping-and-Hoisting">scope and hoisting</a> in Javascript. The more I learn Javascript, the more I like this <a href="https://www.destroyallsoftware.com/talks/wat">wired</a> but powerful language.</p>
+
+<h2>Movies</h2>
+
+<p>I watch the movie <em><a href="http://www.imdb.com/title/tt1772341/">Wreck-It Ralph</a></em>, and as it is already  end of December now, I think this is the best movie I have watched this year.</p>
+
+<h2>Trello</h2>
+
+<p>I got to know trello maybe 2 months ago, when I read the <a href="https://www.blossom.io/blog/2012/09/17/3-tips-for-quick-effective-stand-up-meetings.html">post</a> about standup meeting, and learned things about Kanban. But I started to try <a href="https://trello.com">Trello</a> just resently. Because of this <a href="http://accidentalhacker.com/post/37883161398/rocking-gtd-with-trello">blog post</a>, I haves tried to use Trello to do some GTD work, and it is wonderful. It&rsquo;s clear and simple to use, very good website design, I want to transfer most of my Emacs-Todo-Agenda into Trello Board and tasks, it helps me a lot on GTD.</p>
+
+<h2>Last Weekend</h2>
+
+<p>Last weekend, I did what I wanted to do long ago.</p>
+
+<ol>
+<li>Reinstall my desktop to Windows 7 and wipe Windows 8, I seem not love Win8 that much and I need Win7 to flush my Android.</li>
+<li><a href="http://forum.xda-developers.com/showthread.php?t=1859714">Flush</a> HTC One X back to stock, thought I might broke my phone, but finally found a <a href="http://forum.xda-developers.com/showthread.php?t=1658084&amp;nocache=1">solution</a> to charge my phone on fast boot mode. Thank God for that post, Now I have upgraded to Android 4.1 Jelly Bean with Sense 4. It is Great!</li>
+<li>Install <a href="https://fedoraproject.org/en/get-prerelease">Fedora 18 Beta</a>, it&rsquo;s much better than I imagine, the installer is beautiful, Gnome 3.6 has much change and I want to use it to replace Ubuntu in my office after it <a href="https://fedoraproject.org/wiki/Schedule">released</a> in Jan 8.</li>
+<li>Hangout with friends and have a long talk in KFC…</li>
+</ol>
+
+
+<h2>Next</h2>
+
+<p>The things I want to do in next month:</p>
+
+<ol>
+<li>learn more about node.js</li>
+<li>learn <a href="http://visionmedia.github.com/mocha/">mocha</a> and <a href="http://coffeescript.org/">CoffeeScript</a></li>
+<li>See friends in Shenzhen at New year holiday, it&rsquo;s just this Saturday, Yeah!</li>
+<li>Plan my trip to Tokyo, I&rsquo;m looking forward to this ^ ^</li>
+</ol>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Weekly Review for Sep.16 2012]]></title>
+    <link href="http://laputa.io/blog/2012/09/16/weekly-review-for-sep.16-2012/"/>
+    <updated>2012-09-16T00:00:00+09:00</updated>
+    <id>http://laputa.io/blog/2012/09/16/weekly-review-for-sep.16-2012</id>
+    <content type="html"><![CDATA[<p>I think now I can only do this review twice a week.</p>
+
+<p>No efficiency for the last two weeks, and I have left many things undone. Mainly because I always got a headache on the weekends, and can not do any job in front of a computer. I think I have not sleep well these two weeks, I need to adjust my body clock back normal&hellip;</p>
+
+<!--more-->
+
+
+<h3>Things I have done for the last two weeks:</h3>
+
+<h4>Life:</h4>
+
+<ul>
+<li>[ ] see friends</li>
+</ul>
+
+
+<h4>Hack</h4>
+
+<ul>
+<li>[x] config awesome in Ubuntu</li>
+<li>[x] learn jstd &amp; jasmine</li>
+<li>[x] try cloud foundry</li>
+<li>[ ] kollekt information about command line tips</li>
+<li>[x] try multiple firefox instance</li>
+<li>[x] try to use Firefox Aurora on Ubuntu</li>
+<li>[ ] collect thoughts about RequireJS, Jstd &amp; Jasmine</li>
+<li>[ ] configure Emacs for Javascript</li>
+</ul>
+
+
+<h3>Plan for next week?</h3>
+
+<p>  Still headache now, can not decide yet.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Weekly Review for Sep.2 2012]]></title>
+    <link href="http://laputa.io/blog/2012/09/02/weekly-review-for-sep.2-2012/"/>
+    <updated>2012-09-02T00:00:00+09:00</updated>
+    <id>http://laputa.io/blog/2012/09/02/weekly-review-for-sep.2-2012</id>
+    <content type="html"><![CDATA[<p>I have using Emacs to organize my daily plan for the last two weeks, and now I&rsquo;d like to record my weekly todo plans with it.</p>
+
+<p>I learned this from <a href="http://sachachua.com/blog/2012/09/weekly-review-week-ending-august-31-2012/">sachachua&rsquo;s blog</a>, and she has some wonderful posts about Emacs org-mode.</p>
+
+<!--more-->
+
+
+<h3>Things I have done in the last two weeks:</h3>
+
+<h4>Life</h4>
+
+<ul>
+<li>[x] have a party with colleagues</li>
+<li><p>[x] clean up my github repos</p></li>
+<li><p>[x] pay my credit card</p></li>
+<li>[x] clean my kitchen</li>
+<li>[x] Watch Batman: Dark knight raises</li>
+<li>[ ] Make my 900-month life grid card</li>
+</ul>
+
+
+<h5>Hack</h5>
+
+<ul>
+<li>[ ] update Emacs org-mode to latest version</li>
+<li>[x] add fav icon to my github blog</li>
+<li>[x] add travis build files for my github project Yaml2Properties</li>
+<li>[x] learn org-mode</li>
+<li>[x] learn org agenda, capture mode</li>
+<li>[x] Install Awesome in Ubuntu</li>
+<li>[x] write a weekly review</li>
+</ul>
+
+
+<h3>Plans for the next week</h3>
+
+<h4>Hack</h4>
+
+<ul>
+<li>[ ] Learning Accounting software, maybe ledger</li>
+<li>[ ] try cloudfontry, find a place to put my blog</li>
+<li>[ ] try to use Octpress to generate my blog</li>
+<li>[ ] tweak my awesome config in Ubuntu[</li>
+</ul>
+
+
+<h4>Life</h4>
+
+<ul>
+<li>[ ] see friends</li>
+<li>[ ] plan for my long holiday</li>
+</ul>
+
+]]></content>
+  </entry>
+  
+</feed>

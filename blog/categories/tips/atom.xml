@@ -1,0 +1,464 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: tips | Coding in the Sky]]></title>
+  <link href="http://laputa.io/blog/categories/tips/atom.xml" rel="self"/>
+  <link href="http://laputa.io/"/>
+  <updated>2014-08-12T17:05:25+09:00</updated>
+  <id>http://laputa.io/</id>
+  <author>
+    <name><![CDATA[laputa]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Restore Ubuntu grub2 after install Windows]]></title>
+    <link href="http://laputa.io/blog/2012/10/16/restore-ubuntu-grub2-after-install-windows/"/>
+    <updated>2012-10-16T20:06:00+09:00</updated>
+    <id>http://laputa.io/blog/2012/10/16/restore-ubuntu-grub2-after-install-windows</id>
+    <content type="html"><![CDATA[<p>A two weeks ago, I have installed Windows 8 on my home desktop to replace Windows 7, and of cause I can not boot into Ubuntu 12.04 after that. Today I got my Ubuntu live USB stick back from one of my friend, so I try to restore grub2 in Ubuntu. Here is the work flow:</p>
+
+<!--more-->
+
+
+<p>Boot into the Ubuntu liveUSB, and choose <strong>Try Ubuntu</strong> instead of install it.</p>
+
+<p>Open terminal, mount necessary device:</p>
+
+<pre><code>$ sudo mount /dev/sdx /mnt
+$ sudo mount --bind /dev /mnt/dev
+$ sudo mount --bind /proc /mnt/proc
+</code></pre>
+
+<p><code>/dev/sdx</code> ==> replace <code>x</code> with the device where your old ubuntu lies in.</p>
+
+<p>Then we can change root to the old ubuntu directory:</p>
+
+<pre><code>$ sudo chroot /mnt
+</code></pre>
+
+<p>use <a href="http://www.gnu.org/software/grub/manual/html_node/Installing-GRUB-using-grub_002dinstall.html">grub-install</a> to reinstall grub2:</p>
+
+<pre><code># grub-install --recheck /dev/sdx
+Installation finished. No error reported.
+</code></pre>
+
+<p>Now we need to <strong>reboot</strong>, and now we can see the ubuntu grub boot window, and boot into Ubuntu</p>
+
+<p>Open terminal, use <code>update-grub2</code> to detect your windows installation:</p>
+
+<pre><code>$ sudo update-grub2
+</code></pre>
+
+<p>This will find the windows installation and add it to grub2 boot entry.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Emacs Tips&Tricks]]></title>
+    <link href="http://laputa.io/blog/2012/08/26/emacs-tips-tricks/"/>
+    <updated>2012-08-26T00:00:00+09:00</updated>
+    <id>http://laputa.io/blog/2012/08/26/emacs-tips-tricks</id>
+    <content type="html"><![CDATA[<!--more-->
+
+
+<p>  delete ^M with emacs</p>
+
+<pre><code>M-x replace-string &lt;RET&gt; C-q C-m &lt;RET&gt; &lt;RET&gt;
+</code></pre>
+
+<p>  save backup files elsewhere</p>
+
+<pre><code>(defvar user-temporary-file-directory
+  (concat temporary-file-directory user-login-name "/"))
+(make-directory user-temporary-file-directory t)
+(setq backup-by-copying t)
+(setq backup-directory-alist
+      `(("." . ,user-temporary-file-directory)
+        (,tramp-file-name-regexp nil)))
+(setq auto-save-list-file-prefix
+      (concat user-temporary-file-directory ".auto-saves-"))
+(setq auto-save-file-name-transforms
+      `((".*" ,user-temporary-file-directory t)))
+</code></pre>
+
+<p>  open file as root</p>
+
+<p>  using tramp, see tramp manual</p>
+
+<pre><code>C-x C-f /su::/etc/passwd
+</code></pre>
+
+<p>  replace with a newline</p>
+
+<pre><code>M-x replace-string ; C-q C-j
+</code></pre>
+
+<p>  kill all buffers</p>
+
+<pre><code>M-x kill-some-buffers
+</code></pre>
+
+<p>  save all buffers</p>
+
+<pre><code>C-x s
+</code></pre>
+
+<p>  insert comment</p>
+
+<p>  select region to comment:</p>
+
+<pre><code> M-;
+</code></pre>
+
+<p>  <a href="http://www.cs.ucf.edu/~leavens/emacs/ecb/html-help/Setting-up-semantic.html">disable red underline</a></p>
+
+<pre><code>(global-semantic-show-unmatched-syntax-mode -1)
+</code></pre>
+
+<p>  Swap caps lock &amp; ctrl</p>
+
+<pre><code>$ vim ~/.Xmodmap
+remove Lock = Caps_Lock
+remove Control = Control_L
+keysym Control_L = Caps_Lock
+keysym Caps_Lock = Control_L
+add Lock = Caps_Lock
+add Control = Control_L
+</code></pre>
+
+<p>  insert date</p>
+
+<pre><code>C-u M-! date
+M-1 M-! date
+</code></pre>
+
+<p>  show whitespace</p>
+
+<pre><code>M-x whitespace-mode
+</code></pre>
+
+<p>  keybord macros</p>
+
+<pre><code>C-x (     -&gt;start macro
+key sequence
+C-x )     -&gt;stop macro
+C-x e     -&gt;execute macro
+C-u N C-x e -&gt; N times
+</code></pre>
+
+<p>  replace tabs with spaces</p>
+
+<pre><code>M-x untabify
+</code></pre>
+
+<p>  vice versa:</p>
+
+<pre><code>M-x tabify
+</code></pre>
+
+<p>  <a href="http://www.delorie.com/gnu/docs/emacs/emacs_68.html">multi-line edit</a></p>
+
+<p>  mark a region then:</p>
+
+<pre><code>C-x r t
+</code></pre>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Emacs Org-mode Cheat Sheet]]></title>
+    <link href="http://laputa.io/blog/2012/08/26/emacs-org-mode-cheat-sheet/"/>
+    <updated>2012-08-26T00:00:00+09:00</updated>
+    <id>http://laputa.io/blog/2012/08/26/emacs-org-mode-cheat-sheet</id>
+    <content type="html"><![CDATA[<!--more-->
+
+
+<h2>Keybindings</h2>
+
+<h3>General</h3>
+
+<pre><code>| Visibility cycling    |                                                 |
+| &lt;TAB&gt;                 | Rotate current subtree                          |
+| S-&lt;TAB&gt; and C-u &lt;TAB&gt; | Rotate entire buffer                            |
+| C-u C-u C-u &lt;TAB&gt;     | Show all                                        |
+|-----------------------+-------------------------------------------------|
+| Move between heading  |                                                 |
+| C-c C-n               | Next heading                                    |
+| C-c C-p               | Previous Heading                                |
+| C-c C-f               | Next heading same level                         |
+| C-c C-b               | Previous Heading same level                     |
+| C-c C-u               | Backward to higher level heading                |
+|-----------------------+-------------------------------------------------|
+| Structure editing     |                                                 |
+| M-&lt;RET&gt;               | Insert new heading with same level as current   |
+| M-S-&lt;RET&gt;             | Insert new TODO entry                           |
+| &lt;TAB&gt;                 | Cycle through levels in empty entry             |
+| M-&lt;left&gt;/&lt;right&gt;      | Promote/demote current heading by one level     |
+| M-S-&lt;left&gt;/&lt;right&gt;    | Promote/demote current subtree by one level     |
+| M-S-&lt;up&gt;/&lt;down&gt;       | Move subtree up/down                            |
+| C-c C-w               | Refile entry or region to different location    |
+| C-x n s/w             | Narrow buffer to current subtree/widen it again |
+|-----------------------+-------------------------------------------------|
+| Sparse trees          |                                                 |
+| C-c /                 |                                                 |
+| C-c / r               |                                                 |
+|-----------------------+-------------------------------------------------|
+| Plain lists           |                                                 |
+| '-' '+' '*'           | Unordered list                                  |
+| '1.' '1)'             | Ordered list                                    |
+| '::'                  | Description list                                |
+| &lt;TAB&gt;                 | Fold items                                      |
+| M-&lt;RET&gt;               | Insert new items                                |
+| M-S-&lt;RET&gt;             | Insert new items with a checkbox                |
+| M-S-&lt;up&gt;/&lt;down&gt;       | Move item up/down                               |
+| M-&lt;left&gt;/&lt;right&gt;      | Decrease/increase indentation of item           |
+| M-S-&lt;left&gt;/&lt;right&gt;    | Decrease/increase including subitems            |
+| C-c C-c               | Toggle checkbox                                 |
+| C-c -                 | Cycle item bullets('-','+','*','1.','1)')       |
+|-----------------------+-------------------------------------------------|
+| Footnotes             |                                                 |
+| C-c C-x f             | Footnote action command                         |
+| C-c C-c               | Jump between definition and reference           |
+|-----------------------+-------------------------------------------------|
+</code></pre>
+
+<h3>Tables</h3>
+
+<pre><code>| C-c |                        | convert and active region to table, create new table if no active region |
+| C-c C-c                      | Re-align table without moveing the cursor                                |
+| &lt;TAB&gt;                        | Re-align and move to next field                                          |
+| S-&lt;TAB&gt;                      | Re-align and move to previous field                                      |
+| &lt;RET&gt;                        | Re-align and move down to next row                                       |
+|------------------------------+--------------------------------------------------------------------------|
+| Column and row editing       |                                                                          |
+| M-&lt;left&gt;/&lt;right&gt;             | Move current column left/right                                           |
+| M-S-&lt;left&gt;                   | Kill current column                                                      |
+| M-S-&lt;right&gt;                  | Insert new column to the left of cursor                                  |
+| M-&lt;up&gt;/&lt;down&gt;                | Move current row up/down                                                 |
+| M-S-&lt;up&gt;                     | Kill current row                                                         |
+| M-S-&lt;down&gt;                   | Insert new row above current                                             |
+| C-c -                        | Insert horizontal line below current                                     |
+| C-c &lt;RET&gt;                    | Insert horizontal line below and move to it                              |
+| C-c ^                        | Sort table lines                                                         |
+</code></pre>
+
+<h3>Hyperlinks</h3>
+
+<pre><code>| C-c l   | Store a link                                |
+| C-c C-l | Insert a link                               |
+| C-c C-l | Edit links when cursor on the link          |
+| C-c C-o | Open link                                   |
+| C-c &amp;   | Jump back to recorded position(Using C-c %) |
+</code></pre>
+
+<h3>TODO Items</h3>
+
+<pre><code>| C-c C-t          | Rotate TODO states               |
+| S-&lt;right&gt;/&lt;left&gt; | Select following/preceding state |
+| C-c / t          | View TODO items in sparse tree   |
+| C-c a t          | Show global TODO list            |
+| S-M-&lt;RET&gt;        | Insert new TODO entry            |
+| C-c ,            | Set priority                     |
+| S-&lt;up&gt;/&lt;down&gt;    | Increase/decrease priority       |
+</code></pre>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Eclipse & Emacs]]></title>
+    <link href="http://laputa.io/blog/2012/08/08/eclipse-emacs/"/>
+    <updated>2012-08-08T00:00:00+09:00</updated>
+    <id>http://laputa.io/blog/2012/08/08/eclipse-emacs</id>
+    <content type="html"><![CDATA[<p>This post is about how I tweak Eclipse into a Emacs like IDE, and now I&rsquo;m very happy using Eclipse.</p>
+
+<!--more-->
+
+
+<h2>Emacs Key-bindings</h2>
+
+<p>  I just got to know that Eclipse has a built in <a href="http://help.eclipse.org/juno/index.jsp?topic=%2Forg.eclipse.platform.doc.user%2Fconcepts%2Faccessibility%2Fkeyboardshortcuts.htm">Emacs key-binding scheme</a>, just set it like this:</p>
+
+<pre><code>Windows-&gt;Preference-&gt;General-&gt;Keys-&gt;Scheme-&gt;Emacs
+</code></pre>
+
+<p>  has most useful key-bindings, like <em>C-a</em>, <em>C-e</em>, <em>C-x C-s</em>, etc. But Set Mark does not work with <em>C-Space</em></p>
+
+<h2>Emacs+ plugin for Eclipse</h2>
+
+<p>  Install <a href="http://marketplace.eclipse.org/content/emacs">Emacs+</a> from Eclipse Marketplace, and see the tutorial on <a href="http://www.mulgasoft.com/">MulgaSoft</a>
+  Note that Emacs+ does not support Eclipse Juno(4.2), so if you want to use Emacs+, you better change back to Indigo(3.7) like me&hellip;</p>
+
+<p>  It&rsquo;s awesome, now Set Mark and Select Text works in Eclipse.</p>
+
+<h2>Menu bar integration with Ubuntu Unity</h2>
+
+<p>  This is amazing, just do as this <a href="http://elvisd.blogspot.hk/2012/01/enable-eclipse-global-menu-integration.html">blog post</a> says, and you can move the eclipse menu bar to Ubuntu global menu area.</p>
+
+<pre><code>$ sudo vim /usr/lib/gtk-2.0/2.10.0/menuproxies/libappmenu.so
+/Eclipse
+# Replace 'E' with 'X'
+Eclipse -&gt; Xclipse
+# Save &amp;&amp; Exit
+$ sudo ldconfig
+</code></pre>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[A simple Git cheat sheet and tips]]></title>
+    <link href="http://laputa.io/blog/2012/07/11/a-simple-git-cheat-sheet-and-tips/"/>
+    <updated>2012-07-11T00:00:00+09:00</updated>
+    <id>http://laputa.io/blog/2012/07/11/a-simple-git-cheat-sheet-and-tips</id>
+    <content type="html"><![CDATA[<p>Here is a simple Git cheat sheet and I will update this when I find new ones.</p>
+
+<!--more-->
+
+
+<h2>Cheat Sheet:</h2>
+
+<h3>config:</h3>
+
+<pre><code> $ git config --global user.name "John Doe"
+ $ git config --global user.email johndoe@example.com
+</code></pre>
+
+<p>   this will store your identity in <em>~/.gitconfig</em>, use <code>--system</code> to store in <em>/etc/gitconfig</em>, use <code>--local</code> to specify a per-repository configuration, which stores in <em>.git/config</em>.</p>
+
+<h3>log</h3>
+
+<pre><code>| git log                                           | view commit log                    |
+| git log -p -2                                     | show patch of last 2 commit        |
+| git log --stat                                    | show simple state                  |
+| git log --pretty=oneline                          | show in other formats              |
+| git log --graph --all --decorate --pretty=oneline | show all branch commits with graph |
+</code></pre>
+
+<h3>undo things</h3>
+
+<pre><code>| git commit --amend       | this will overwrite the last commit |
+| git reset HEAD~1         | discard last commit                 |
+| git reset HEAD filename  | unstage a file                      |
+| git checkout -- filename | undo modified file                  |
+</code></pre>
+
+<h3>remote</h3>
+
+<pre><code>| git remote -v                    | show remote repository  |
+| git remote add [shortname] [url] | add remote repository   |
+| git fetch [remote]               | fetch remote            |
+| git remote show [shortname]      | show remote infomation  |
+| git remote rename [from] [to]    | rename remote shortname |
+| git remote rm [remote]           | remove remote           |
+</code></pre>
+
+<h2>Tricks &amp; Tips</h2>
+
+<h3>clone into an existing directory</h3>
+
+<p>clone a repo into an existing directory,</p>
+
+<pre><code>$ cd PATH/YOU/WANT/TO/PUT/GIT/FILES
+$ git init
+$ git remote add origin git://remote.repo.url.path
+$ git fetch
+$ git checkout -t origin/master
+</code></pre>
+
+<p><code>fetch</code> will get all remote branches to local, but we still need the <code>checkout</code> command to switch to a specific branch,  <code>-t</code> implies <code>-b</code>, which tells git to create a local <strong>master</strong> branch and make it to track the remote master branch, which is <strong>origin/master</strong>.</p>
+
+<h3>view the history of a single file</h3>
+
+<pre><code>$ git log -p filename
+$ git whatchanged -p filename
+
+$ git log -p --follow filename
+$ git blame filename
+
+$ gitk filename
+</code></pre>
+
+<h3>checkout a single file from another branch</h3>
+
+<pre><code>$ git checkout branch_1 -- path/to/file
+</code></pre>
+
+<h3>revert to previous commit/discard current commit</h3>
+
+<p>  if you doesn&rsquo;t push your commit:</p>
+
+<pre><code>git reset --hard HEAD~1
+</code></pre>
+
+<p>  if you already push your commit:</p>
+
+<pre><code>git revert HEAD
+</code></pre>
+
+<h3>rewrite last commit message</h3>
+
+<p>  see this<a href="http://stackoverflow.com/questions/179123/how-do-i-edit-an-incorrect-commit-message-in-git">stackoverflow questions</a></p>
+
+<pre><code>git commit --amend -m "New commit message"
+</code></pre>
+
+<h3>discard all modify</h3>
+
+<pre><code>git checkout .
+</code></pre>
+
+<h3>working with remotes</h3>
+
+<p>  create remote branch</p>
+
+<pre><code>$ git push REMOTENAME BRANCHNAME
+</code></pre>
+
+<p>  delete remote branch</p>
+
+<pre><code>$ git push REMOTENAME :BRANCHNAME
+</code></pre>
+
+<p>  pushing tags</p>
+
+<pre><code>$ git push REMOTENAME TAGNAME
+$ git push REMOTENAME BRANCHNAME --tags
+</code></pre>
+
+<p>  push to multiple remotes at the same time</p>
+
+<pre><code>$ vim .git/config
+[remote "all"]
+url = git@github.com:luoshupeng/commonuseppa.git
+url = git@gitcafe.com:chinesedragon/commonuseppa.git
+url = chinesedragon@gitcd.com:/commonuseppa
+$ git push all
+</code></pre>
+
+<p>this will push to all urls</p>
+
+<h3>show/hide untracked files</h3>
+
+<pre><code>$ git status -u   #show only untracked files
+$ git status -uno #don't show untracked files
+$ git config status.showuntrackedfiles no
+
+# List git-ignored files
+$ git ls-files . --ignored --exclude-standard --others
+
+# List untracked files
+$ git ls-files . --exclude-standard --others
+</code></pre>
+
+<h3>checkout single file from stash</h3>
+
+<p>  see more <a href="http://stackoverflow.com/questions/1105253/how-would-i-extract-a-single-file-or-changes-to-a-file-from-a-git-stash">here</a></p>
+
+<pre><code>$ git checkout stash@{0} -- &lt;filename&gt;
+</code></pre>
+]]></content>
+  </entry>
+  
+</feed>

@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: browser | Coding in the Sky]]></title>
+  <link href="http://laputa.io/blog/categories/browser/atom.xml" rel="self"/>
+  <link href="http://laputa.io/"/>
+  <updated>2014-08-12T17:05:25+09:00</updated>
+  <id>http://laputa.io/</id>
+  <author>
+    <name><![CDATA[laputa]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Running multiple instance of firefox]]></title>
+    <link href="http://laputa.io/blog/2012/09/13/running-multiple-instance-of-firefox/"/>
+    <updated>2012-09-13T00:00:00+09:00</updated>
+    <id>http://laputa.io/blog/2012/09/13/running-multiple-instance-of-firefox</id>
+    <content type="html"><![CDATA[<p>  I&rsquo;m doing web development nowadays, using <a href="http://www.mozilla.org/en-US/firefox">Firefox</a>, still my favorite browser and develop platform, though I will also use <a href="http://www.google.com/chrome">Chrome</a> some time.</p>
+
+<!--more-->
+
+
+<p>  As you may know that firefox does not allow multiple instance to run at the same time, which means if you try to open firefox again(with desktop shortcut or command line) when you already is running one, it will give a message saying:</p>
+
+<blockquote><p>A copy of Firefox is already open. Only one copy of Firefox can be open at a time.</p></blockquote>
+
+<p>  A very long time before, I had wanted to run multiple fireboxes at the same time, but no lucky. Until yesterday I read a <a href="http://www.callum-macdonald.com/about/faq/multiple-firefox-instances/">blog post</a> in my <a href="www.google.com/reader">google reader</a>, I see this feature again. And what&rsquo;s lucky that I decide to try it. What I get is more than I wanted.</p>
+
+<p>  So, here is how to do it:</p>
+
+<p>  First, we need to know something about firefox&rsquo;s command line options(running on Mac OSX with ff 15.0.1):</p>
+
+<pre><code>$ firefox --help
+Firefox options
+-h or -help        Print this message.
+-v or -version     Print Firefox version.
+-P &lt;profile&gt;       Start with &lt;profile&gt;.
+-migration         Start with migration wizard.
+-ProfileManager    Start with ProfileManager.
+-no-remote         Do not accept or send remote commands; implies -new-instance.
+-new-instance      Open new instance, not a new window in running instance.
+-UILocale &lt;locale&gt; Start with &lt;locale&gt; resources as UI Locale.
+-safe-mode         Disables extensions and themes for this session.
+-jsconsole         Open the Error console.
+-browser           Open a browser window.
+-new-window  &lt;url&gt; Open &lt;url&gt; in a new window.
+-new-tab     &lt;url&gt; Open &lt;url&gt; in a new tab.
+-preferences       Open Preferences dialog.
+-search     &lt;term&gt; Search &lt;term&gt; with your default search engine.
+-private           Enable private browsing mode.
+-private-toggle    Toggle private browsing mode.
+-setDefaultBrowser Set this app as the default browser.
+</code></pre>
+
+<p> but today we only need this three:</p>
+
+<ul>
+<li><p>-no-remote<br/>
+Enables <a href="http://kb.mozillazine.org/Opening_a_new_instance_of_your_Mozilla_application_with_another_profile">running multiple instances of the application with different profiles</a>; used with -P</p></li>
+<li><p>-ProfileManager<br/>
+Starts with Profile Manager.</p></li>
+<li><p>-P &ldquo;&lt;profile name>"<br/>
+Starts with a given profile name (profile name is case sensitive).</p></li>
+</ul>
+
+
+<p>first running firefox with <code>-ProfileManager</code>, let&rsquo;s create a separate profile:</p>
+
+<pre><code>$ firefox -ProfileManager
+</code></pre>
+
+<p>this will open a dialog to let us create/delete/rename profiles, just create a new one, and name it. like <code>develop</code>.</p>
+
+<p>  Then run firefox normally, like we always did after open the computer. Now firefox is running with the default profile, and if we open it again, it will give the normal <code>Only one instance</code> warning. Let&rsquo;s do it in command line way:</p>
+
+<pre><code>$ firefox -no-remote -P "develop"
+</code></pre>
+
+<p>  Da da!! Now we have two firefox, in <em><strong>separate instance</strong></em>. Which also means <strong>double memory use..</strong></p>
+
+<p>  You may ask, what&rsquo;s the point? Why we need two instance of firefox? Two make two cups of <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=46647">coffee</a>? Well, let me tell you what this is worth a blog post.</p>
+
+<p>  The point is not only another instance of firefox, but also a separate <strong>Profile</strong>. As I use firefox every day and keep it open from opening the computer till leaving office. I use it to read mails, review code, check new issues, search google, etc. And also, I use it to develop, test website, open firebug, debug javascript, etc. Currently I am doing this all in a single firefox window, and some times firebug makes my FF very slow, it influence my other work.</p>
+
+<p>  Now, with this profile manager, I can make a new clean profile, with only develop add-ons installed, and open another firefox instance, only use it to do web development, doesn&rsquo;t this sounds awesome?! What&rsquo;s more, we can set up shortcuts for this <em>clean development</em> firefox instance, and open it in another workspace, without influence my daily web works. I will do this in my <a href="http://awesome.naquadah.org/">awesome</a> configuration file of Ubuntu 12.04 after I go to office tomorrow. It will be interesting, and later I will try <a href="www.mozilla.org/en-US/firefox/aurora/">Firefox 17</a>&rsquo;s new <a href="https://hacks.mozilla.org/2012/09/html-editing-and-other-improvements-in-firefox-17-developer-tools/">web development tools</a>.</p>
+]]></content>
+  </entry>
+  
+</feed>
