@@ -13,7 +13,7 @@ Boilerplate project
 
 First, let's make a boilerplate project for doing the test. Make prject structure like this:
 
-````
+```
 karma-boilerplate
 ├── package.json
 ├── README.md
@@ -21,25 +21,25 @@ karma-boilerplate
 │   └── hello.js
 └── test
     └── hellpSpec.js
-````
+```
 
 `hello.js`:
 
-````javascript
+```
 function hello() {
   return 0;
 }
-````
+```
 
 `helloSpec.js`:
 
-````javascript
+```
 describe('hello', function() {
   it('should return 0', function() {
     expect(hello()).toEqual(0);
   });
 });
-````
+```
 
 Or you can directly get the source code from [Github](https://github.com/justlaputa/karma-boilerplate).
 
@@ -50,10 +50,10 @@ Karma is written by google's [AngularJS](https://angularjs.org/) team, and they 
 
 After that, let's install the packages we need:
 
-````shell
+```
 $ npm install karma --save-dev
 $ npm install karma-jasmine karma-phantomjs-launcher karma-chrome-launcher --save-dev
-````
+```
 
 `karma` is the test runner, it will load our tests in browsers and run them, while others are all karma plugins.
 
@@ -67,13 +67,13 @@ Configuration
 
 Karma has an [interactive](https://karma-runner.github.io/0.12/intro/configuration.html) command to help us generate config files:
 
-````
+```
 $ ./node_modules/karma/bin/karma init
-````
+```
 
 It will ask you some questions and you will be able to choose the answers from command line, after that it will generate a `karma.config.js` file for you.
 
-````
+```
 $ ./node_modules/karma/bin/karma init
 
 Which testing framework do you want to use ?
@@ -109,7 +109,7 @@ Press tab to list possible options.
 
 
 Config file generated at "/home/laputa/workspace/github/karma-boilerplate/karma.config.js".
-````
+```
 
 Then it will generate `karma.config.js` file for you, there are two points about the karma config:
 
@@ -119,21 +119,21 @@ Karma does not serve all files by default, which means it will only serve the fi
 
 _RequireJS_:
 
-````javascript
+```
     files: [
       { pattern: 'src/**/*.js', included: false, served: true },
       'test/**/*Spec.js'
     ]
-````
+```
 
 _Closure_:
 
-````javascript
+```
     files: [
       { pattern: 'CLOSURE_LIB_ROOT/**/*.js', included: false, served: true },
       'src/**/*Spec.js'
     ]
-````
+```
 
 #### Iframe
 
@@ -141,21 +141,21 @@ By default, Karma will load all script in an iframe, and run the test, but when 
 
 `testSpec.js`:
 
-````javascript
+```
   if (window._phantom) {
     //Add some function that phantomjs not support
   }
-````
+```
 
 It won't happen because the `_phantom` global variable will not be set in the iframe. Now we need to specify Karma to not use iframe:
 
 `karma.config.js`:
 
-````javascript
+```
   client: {
     useIframe: false
   }
-````
+```
 
 By this, all test will be run in a new window instead of in an iframe.
 
@@ -163,16 +163,16 @@ Use grunt-karma
 -------
 If you want to use grunt to start karma, which will be helpful for CI runners, you can try to use [grunt-karma](https://github.com/karma-runner/grunt-karma):
 
-````
+```
 $ npm install grunt-karma --save-dev
 $ npm install karma-junit-reporter --save-dev //this allows to output junit report for CI like Jenkins
-````
+```
 
 and you can write all your configuration in the Gruntfile.js instead of in a separate config.js file, it is also able to define separate options for different environment, like CI and local development. A simple example:
 
 `Gruntfile.js`
 
-````javascript
+```
     karma: {
       options: {
         frameworks: ['jasmine'],
@@ -197,7 +197,7 @@ and you can write all your configuration in the Gruntfile.js instead of in a sep
         bro1wsers: ['Chrome']
       }
     }
-````
+```
 
 when run `grunt karma:continuous`, it will avoid using iframe, launch PhantomJS and output junit report for CI. while run `grunt karma:dev` will launcher Chrome for developers.
 
