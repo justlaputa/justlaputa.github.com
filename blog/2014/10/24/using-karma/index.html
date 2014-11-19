@@ -128,28 +128,30 @@
 </span><span class='line'>    └── hellpSpec.js</span></code></pre></td></tr></table></div></figure>
 
 
-<p><code>hello.js</code>:</p>
+<p><em>hello.js</em>:</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>function hello() {
-</span><span class='line'>  return 0;
-</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">function</span> <span class="nx">hello</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
-<p><code>helloSpec.js</code>:</p>
+<p><em>helloSpec.js</em>:</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
 <span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>describe('hello', function() {
-</span><span class='line'>  it('should return 0', function() {
-</span><span class='line'>    expect(hello()).toEqual(0);
-</span><span class='line'>  });
-</span><span class='line'>});</span></code></pre></td></tr></table></div></figure>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">describe</span><span class="p">(</span><span class="s1">&#39;hello&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">it</span><span class="p">(</span><span class="s1">&#39;should return 0&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">expect</span><span class="p">(</span><span class="nx">hello</span><span class="p">()).</span><span class="nx">toEqual</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">});</span>
+</span><span class='line'><span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
 <p>Or you can directly get the source code from <a href="https://github.com/justlaputa/karma-boilerplate">Github</a>.</p>
@@ -160,10 +162,11 @@
 
 <p>After that, let&rsquo;s install the packages we need:</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>$ npm install karma --save-dev
-</span><span class='line'>$ npm install karma-jasmine karma-phantomjs-launcher karma-chrome-launcher --save-dev</span></code></pre></td></tr></table></div></figure>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>npm install karma --save-dev
+</span><span class='line'><span class="nv">$ </span>npm install karma-jasmine karma-phantomjs-launcher karma-chrome-launcher --save-dev
+</span></code></pre></td></tr></table></div></figure>
 
 
 <p><code>karma</code> is the test runner, it will load our tests in browsers and run them, while others are all karma plugins.</p>
@@ -179,13 +182,14 @@
 
 <p>Karma has an <a href="https://karma-runner.github.io/0.12/intro/configuration.html">interactive</a> command to help us generate config files:</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>$ ./node_modules/karma/bin/karma init</span></code></pre></td></tr></table></div></figure>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>./node_modules/karma/bin/karma init
+</span></code></pre></td></tr></table></div></figure>
 
 
 <p>It will ask you some questions and you will be able to choose the answers from command line, after that it will generate a <code>karma.config.js</code> file for you.</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -220,9 +224,9 @@
 <span class='line-number'>33</span>
 <span class='line-number'>34</span>
 <span class='line-number'>35</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>$ ./node_modules/karma/bin/karma init
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>./node_modules/karma/bin/karma init
 </span><span class='line'>
-</span><span class='line'>Which testing framework do you want to use ?
+</span><span class='line'>Which testing framework <span class="k">do</span> you want to use ?
 </span><span class='line'>Press tab to list possible options. Enter to move to the next question.
 </span><span class='line'>&gt; jasmine
 </span><span class='line'>
@@ -237,15 +241,15 @@
 </span><span class='line'>&gt; PhantomJS
 </span><span class='line'>&gt;
 </span><span class='line'>
-</span><span class='line'>What is the location of your source and test files ?
-</span><span class='line'>You can use glob patterns, eg. "js/*.js" or "test/**/*Spec.js".
+</span><span class='line'>What is the location of your <span class="nb">source </span>and <span class="nb">test </span>files ?
+</span><span class='line'>You can use glob patterns, eg. <span class="s2">&quot;js/*.js&quot;</span> or <span class="s2">&quot;test/**/*Spec.js&quot;</span>.
 </span><span class='line'>Enter empty string to move to the next question.
 </span><span class='line'>&gt; src/**/*.js
-</span><span class='line'>&gt; test/**/*Spec.js
+</span><span class='line'>&gt; <span class="nb">test</span>/**/*Spec.js
 </span><span class='line'>&gt;
 </span><span class='line'>
 </span><span class='line'>Should any of the files included by the previous patterns be excluded ?
-</span><span class='line'>You can use glob patterns, eg. "**/*.swp".
+</span><span class='line'>You can use glob patterns, eg. <span class="s2">&quot;**/*.swp&quot;</span>.
 </span><span class='line'>Enter empty string to move to the next question.
 </span><span class='line'>&gt;
 </span><span class='line'>
@@ -254,7 +258,8 @@
 </span><span class='line'>&gt; yes
 </span><span class='line'>
 </span><span class='line'>
-</span><span class='line'>Config file generated at "/home/laputa/workspace/github/karma-boilerplate/karma.config.js".</span></code></pre></td></tr></table></div></figure>
+</span><span class='line'>Config file generated at <span class="s2">&quot;/home/laputa/workspace/github/karma-boilerplate/karma.config.js&quot;</span>.
+</span></code></pre></td></tr></table></div></figure>
 
 
 <p>Then it will generate <code>karma.config.js</code> file for you, there are two points about the karma config:</p>
@@ -265,52 +270,56 @@
 
 <p><em>RequireJS</em>:</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>files: [
-</span><span class='line'>  { pattern: 'src/**/*.js', included: false, served: true },
-</span><span class='line'>  'test/**/*Spec.js'
-</span><span class='line'>]</span></code></pre></td></tr></table></div></figure>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">files</span><span class="o">:</span> <span class="p">[</span>
+</span><span class='line'>  <span class="p">{</span> <span class="nx">pattern</span><span class="o">:</span> <span class="s1">&#39;src/**/*.js&#39;</span><span class="p">,</span> <span class="nx">included</span><span class="o">:</span> <span class="kc">false</span><span class="p">,</span> <span class="nx">served</span><span class="o">:</span> <span class="kc">true</span> <span class="p">},</span>
+</span><span class='line'>  <span class="s1">&#39;test/**/*Spec.js&#39;</span>
+</span><span class='line'><span class="p">]</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
 <p><em>Closure</em>:</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>files: [
-</span><span class='line'>  { pattern: 'CLOSURE_LIB_ROOT/**/*.js', included: false, served: true },
-</span><span class='line'>  'src/**/*Spec.js'
-</span><span class='line'>]</span></code></pre></td></tr></table></div></figure>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">files</span><span class="o">:</span> <span class="p">[</span>
+</span><span class='line'>  <span class="p">{</span> <span class="nx">pattern</span><span class="o">:</span> <span class="s1">&#39;CLOSURE_LIB_ROOT/**/*.js&#39;</span><span class="p">,</span> <span class="nx">included</span><span class="o">:</span> <span class="kc">false</span><span class="p">,</span> <span class="nx">served</span><span class="o">:</span> <span class="kc">true</span> <span class="p">},</span>
+</span><span class='line'>  <span class="s1">&#39;src/**/*Spec.js&#39;</span>
+</span><span class='line'><span class="p">]</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
 <h4>Iframe</h4>
 
 <p>By default, Karma will load all script in an iframe, and run the test, but when you are using PhantomJS, phantomjs will expose global variables like <code>window._phantom</code>. If we want to detect phantomjs in our test source like:</p>
 
-<p><code>testSpec.js</code>:</p>
+<p><em>testSpec.js</em>:</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>  if (window._phantom) {
-</span><span class='line'>    //Add some function that phantomjs not support
-</span><span class='line'>  }</span></code></pre></td></tr></table></div></figure>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="nb">window</span><span class="p">.</span><span class="nx">_phantom</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="c1">//Add some function that phantomjs not support</span>
+</span><span class='line'>  <span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
 <p>It won&rsquo;t happen because the <code>_phantom</code> global variable will not be set in the iframe. Now we need to specify Karma to not use iframe:</p>
 
-<p><code>karma.config.js</code>:</p>
+<p><em>karma.config.js</em>:</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>  client: {
-</span><span class='line'>    useIframe: false
-</span><span class='line'>  }</span></code></pre></td></tr></table></div></figure>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'>  <span class="nx">client</span><span class="o">:</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">useIframe</span><span class="o">:</span> <span class="kc">false</span>
+</span><span class='line'>  <span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
 <p>By this, all test will be run in a new window instead of in an iframe.</p>
@@ -319,17 +328,18 @@
 
 <p>If you want to use grunt to start karma, which will be helpful for CI runners, you can try to use <a href="https://github.com/karma-runner/grunt-karma">grunt-karma</a>:</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>$ npm install grunt-karma --save-dev
-</span><span class='line'>$ npm install karma-junit-reporter --save-dev //this allows to output junit report for CI like Jenkins</span></code></pre></td></tr></table></div></figure>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>npm install grunt-karma --save-dev
+</span><span class='line'><span class="nv">$ </span>npm install karma-junit-reporter --save-dev <span class="c">#this allows to output junit report for CI like Jenkins</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
 <p>and you can write all your configuration in the Gruntfile.js instead of in a separate config.js file, it is also able to define separate options for different environment, like CI and local development. A simple example:</p>
 
-<p><code>Gruntfile.js</code></p>
+<p><em>Gruntfile.js</em>:</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -353,30 +363,31 @@
 <span class='line-number'>22</span>
 <span class='line-number'>23</span>
 <span class='line-number'>24</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>karma: {
-</span><span class='line'>  options: {
-</span><span class='line'>    frameworks: ['jasmine'],
-</span><span class='line'>    files: [
-</span><span class='line'>      'src/**/*.js',
-</span><span class='line'>      'test/**/*.js'
-</span><span class='line'>    ]
-</span><span class='line'>  },
-</span><span class='line'>  continuous: {
-</span><span class='line'>    singleRun: true,
-</span><span class='line'>    browsers: ['PhantomJS'],
-</span><span class='line'>    reporters: 'junit',
-</span><span class='line'>    junitReporter: {
-</span><span class='line'>      outputFile: 'test/reports/karma-results.xml'
-</span><span class='line'>    },
-</span><span class='line'>    client: {
-</span><span class='line'>      useIframe: false //to avoid phantomjs detect failure
-</span><span class='line'>    }
-</span><span class='line'>  },
-</span><span class='line'>  dev: {
-</span><span class='line'>    reporters: 'dots',
-</span><span class='line'>    bro1wsers: ['Chrome']
-</span><span class='line'>  }
-</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">karma</span><span class="o">:</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">options</span><span class="o">:</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">frameworks</span><span class="o">:</span> <span class="p">[</span><span class="s1">&#39;jasmine&#39;</span><span class="p">],</span>
+</span><span class='line'>    <span class="nx">files</span><span class="o">:</span> <span class="p">[</span>
+</span><span class='line'>      <span class="s1">&#39;src/**/*.js&#39;</span><span class="p">,</span>
+</span><span class='line'>      <span class="s1">&#39;test/**/*.js&#39;</span>
+</span><span class='line'>    <span class="p">]</span>
+</span><span class='line'>  <span class="p">},</span>
+</span><span class='line'>  <span class="nx">continuous</span><span class="o">:</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">singleRun</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>
+</span><span class='line'>    <span class="nx">browsers</span><span class="o">:</span> <span class="p">[</span><span class="s1">&#39;PhantomJS&#39;</span><span class="p">],</span>
+</span><span class='line'>    <span class="nx">reporters</span><span class="o">:</span> <span class="s1">&#39;junit&#39;</span><span class="p">,</span>
+</span><span class='line'>    <span class="nx">junitReporter</span><span class="o">:</span> <span class="p">{</span>
+</span><span class='line'>      <span class="nx">outputFile</span><span class="o">:</span> <span class="s1">&#39;test/reports/karma-results.xml&#39;</span>
+</span><span class='line'>    <span class="p">},</span>
+</span><span class='line'>    <span class="nx">client</span><span class="o">:</span> <span class="p">{</span>
+</span><span class='line'>      <span class="nx">useIframe</span><span class="o">:</span> <span class="kc">false</span> <span class="c1">//to avoid phantomjs detect failure</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>  <span class="p">},</span>
+</span><span class='line'>  <span class="nx">dev</span><span class="o">:</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">reporters</span><span class="o">:</span> <span class="s1">&#39;dots&#39;</span><span class="p">,</span>
+</span><span class='line'>    <span class="nx">bro1wsers</span><span class="o">:</span> <span class="p">[</span><span class="s1">&#39;Chrome&#39;</span><span class="p">]</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
 <p>when run <code>grunt karma:continuous</code>, it will avoid using iframe, launch PhantomJS and output junit report for CI. while run <code>grunt karma:dev</code> will launcher Chrome for developers.</p>
