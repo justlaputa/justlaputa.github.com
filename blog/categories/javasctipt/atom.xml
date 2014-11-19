@@ -4,7 +4,7 @@
   <title><![CDATA[Category: javasctipt | Coding in the Sky]]></title>
   <link href="http://laputa.io/blog/categories/javasctipt/atom.xml" rel="self"/>
   <link href="http://laputa.io/"/>
-  <updated>2014-10-24T12:05:06+09:00</updated>
+  <updated>2014-11-19T18:12:53+09:00</updated>
   <id>http://laputa.io/</id>
   <author>
     <name><![CDATA[laputa]]></name>
@@ -29,7 +29,7 @@
 
 <p>根据 JQuery <a href="http://api.jquery.com">api文档</a> 的描述，.val() 函数有两种用法，分别用来获取或设置元素的值，这里只介绍获取值的方法。</p>
 
-<p>文档里面说 .val 主要是用于获取元素的value，比如 <a href="http://www.w3schools.com/tags/tag_input.asp">input</a>, <a href="http://www.w3schools.com/tags/tag_select.asp">select</a> 和 <a href="http://www.w3schools.com/tags/tag_textarea.asp">textarea</a>等，首先第一个问题，"什么是元素的<strong>value</strong>?"</p>
+<p>文档里面说 .val 主要是用于获取元素的value，比如 <a href="http://www.w3schools.com/tags/tag_input.asp">input</a>, <a href="http://www.w3schools.com/tags/tag_select.asp">select</a> 和 <a href="http://www.w3schools.com/tags/tag_textarea.asp">textarea</a>等，首先第一个问题，&#8221;什么是元素的<strong>value</strong>?&#8221;</p>
 
 <p>用 <em>select</em> 标签为例，如下的代码：</p>
 
@@ -73,7 +73,7 @@ $('#choise').click(function(event) {
 
 <blockquote><p>The value attribute specifies the value to be sent to a server when a form is submitted.</p>
 
-<p>The content between the opening &lt;option> and closing &lt;/option> tags is what the browsers will display in a drop-down list. However, the value of the value attribute is what will be sent to the server when a form is submitted.</p>
+<p>The content between the opening \&lt;option> and closing \&lt;/option> tags is what the browsers will display in a drop-down list. However, the value of the value attribute is what will be sent to the server when a form is submitted.</p>
 
 <p><strong>Note:</strong> If the value attribute is not specified, the content will be passed as the value instead.</p></blockquote>
 

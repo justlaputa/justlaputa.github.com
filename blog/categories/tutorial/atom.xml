@@ -4,7 +4,7 @@
   <title><![CDATA[Category: tutorial | Coding in the Sky]]></title>
   <link href="http://laputa.io/blog/categories/tutorial/atom.xml" rel="self"/>
   <link href="http://laputa.io/"/>
-  <updated>2014-10-24T12:05:06+09:00</updated>
+  <updated>2014-11-19T18:12:53+09:00</updated>
   <id>http://laputa.io/</id>
   <author>
     <name><![CDATA[laputa]]></name>
@@ -51,8 +51,7 @@
 
 <p>First, I want to use static local html file to test the library, which is fast to do. Here is the code:</p>
 
-<p>```
-$ tree mejs
+<pre><code>$ tree mejs
 mejs
 ├── css
 │   ├── background.png
@@ -71,47 +70,34 @@ mejs
 │   ├── flashmediaelement.swf
 │   ├── jquery.js
 │   └── mediaelement-and-player.js
-└── media</p>
+└── media
+    └── music.mp3
 
-<pre><code>└── music.mp3
+3 directories, 16 files
 </code></pre>
-
-<p>3 directories, 16 files
-```</p>
 
 <p><strong>index.html</strong> :</p>
 
-<p>```
-&lt;!doctype html>
-<html>
-<head></p>
-
-<pre><code>&lt;link type="text/css" rel="stylesheet" href="css/mediaelementplayer.css" /&gt;
-&lt;script src="js/jquery.js"&gt;&lt;/script&gt;
-&lt;script src="js/mediaelement-and-player.js"&gt;&lt;/script&gt;
+<pre><code>&lt;!doctype html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;link type="text/css" rel="stylesheet" href="css/mediaelementplayer.css" /&gt;
+    &lt;script src="js/jquery.js"&gt;&lt;/script&gt;
+    &lt;script src="js/mediaelement-and-player.js"&gt;&lt;/script&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;audio type="audio/mp3" src="media/music.mp3" controls&gt;&lt;/audio&gt;
+    &lt;script src="js/app.js"&gt;&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
 </code></pre>
-
-<p></head>
-<body></p>
-
-<pre><code>&lt;audio type="audio/mp3" src="media/music.mp3" controls&gt;&lt;/audio&gt;
-&lt;script src="js/app.js"&gt;&lt;/script&gt;
-</code></pre>
-
-<p></body>
-</html>
-```</p>
 
 <p><strong>app.js</strong> :</p>
 
-<p>```
-$(function() {</p>
-
-<pre><code>$('audio').mediaelementplayer();
+<pre><code>$(function() {
+    $('audio').mediaelementplayer();
+});
 </code></pre>
-
-<p>});
-```</p>
 
 <p>As firefox does not support <a href="https://developer.mozilla.org/en-US/docs/HTML/Supported_media_formats#compat-desktop">MP3 format</a>, if we don&rsquo;t include the <code>app.js</code> file to use mediaelement.js, the browser will not show the audio bar, and gives an error in js console:</p>
 
@@ -123,9 +109,8 @@ $(function() {</p>
 
 <p>Something intresting: though firefox declares not support mp3, but when I open the mp3 file directly in firefox, it plays well, and the inspector show this code:</p>
 
-<p><code>
-&lt;embed type="audio/mpeg" src="file:///Users/hanxiao/workspace/test/mejs/media/music.mp3" name="plugin" height="100%" width="100%"&gt;
-</code></p>
+<pre><code>&lt;embed type="audio/mpeg" src="file:///Users/hanxiao/workspace/test/mejs/media/music.mp3" name="plugin" height="100%" width="100%"&gt;
+</code></pre>
 
 <p>Do you know why? Please comment if you do, cause currently I don&rsquo;t..</p>
 
@@ -182,7 +167,7 @@ Firefox options
 Enables <a href="http://kb.mozillazine.org/Opening_a_new_instance_of_your_Mozilla_application_with_another_profile">running multiple instances of the application with different profiles</a>; used with -P</p></li>
 <li><p>-ProfileManager<br/>
 Starts with Profile Manager.</p></li>
-<li><p>-P &ldquo;&lt;profile name>"<br/>
+<li><p>-P &ldquo;&lt;profile name>&rdquo;<br/>
 Starts with a given profile name (profile name is case sensitive).</p></li>
 </ul>
 

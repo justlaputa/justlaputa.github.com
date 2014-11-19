@@ -4,7 +4,7 @@
   <title><![CDATA[Coding in the Sky]]></title>
   <link href="http://laputa.io/atom.xml" rel="self"/>
   <link href="http://laputa.io/"/>
-  <updated>2014-10-24T12:05:06+09:00</updated>
+  <updated>2014-11-19T18:12:53+09:00</updated>
   <id>http://laputa.io/</id>
   <author>
     <name><![CDATA[laputa]]></name>
@@ -765,7 +765,7 @@ Firefox options
 Enables <a href="http://kb.mozillazine.org/Opening_a_new_instance_of_your_Mozilla_application_with_another_profile">running multiple instances of the application with different profiles</a>; used with -P</p></li>
 <li><p>-ProfileManager<br/>
 Starts with Profile Manager.</p></li>
-<li><p>-P &ldquo;&lt;profile name>&#8221;<br/>
+<li><p>-P &ldquo;&lt;profile name>&rdquo;<br/>
 Starts with a given profile name (profile name is case sensitive).</p></li>
 </ul>
 
@@ -1030,7 +1030,7 @@ make &amp;&amp; sudo make install
 <pre><code>./configure --prefix=/usr --enable-shared
 make &amp;&amp; sudo make install
 </code></pre></li>
-<li><p> reconfigure ffmpeg add &mdash;enable-libx264</p>
+<li><p> reconfigure ffmpeg add &ndash;enable-libx264</p>
 
 <pre><code>make &amp;&amp; make 
 </code></pre></li>
@@ -1370,7 +1370,7 @@ $('#choise').click(function(event) {
 
 <blockquote><p>The value attribute specifies the value to be sent to a server when a form is submitted.</p>
 
-<p>The content between the opening &lt;option> and closing &lt;/option> tags is what the browsers will display in a drop-down list. However, the value of the value attribute is what will be sent to the server when a form is submitted.</p>
+<p>The content between the opening \&lt;option> and closing \&lt;/option> tags is what the browsers will display in a drop-down list. However, the value of the value attribute is what will be sent to the server when a form is submitted.</p>
 
 <p><strong>Note:</strong> If the value attribute is not specified, the content will be passed as the value instead.</p></blockquote>
 
@@ -1687,7 +1687,7 @@ tar xzf ~/Downloads/eclipse-jee-juno-linux-gtk.tar.gz
 
 <h2>Other software</h2>
 
-<h3>fcitx &ndash; input method</h3>
+<h3>fcitx - input method</h3>
 
 <pre><code>sudo apt-get install fcitx
 </code></pre>
