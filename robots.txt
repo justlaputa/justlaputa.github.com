@@ -1,4 +1,4 @@
 User-agent: *
-Disallow: 
+Disallow:
 
-Sitemap: http://laputa.io/sitemap.xml 
+Sitemap: http://laputa.io/sitemap.xml
