@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "using karma"
+title: "Using Karma"
 date: 2014-10-24 10:09:48 +0900
 comments: true
 categories:
