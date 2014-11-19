@@ -1,12 +1,14 @@
 ---
 layout: post
-title: "Using Karma"
+title: "Using Karma for js unit testing"
 date: 2014-10-24 10:09:48 +0900
 comments: true
 categories:
 ---
 
 Recently I'm trying to use [Karma](https://karma-runner.github.io/) to do front-end javascript unit test. Here is my simple startup of setting up.
+
+<!--more-->
 
 Boilerplate project
 -------
@@ -23,17 +25,17 @@ karma-boilerplate
     └── hellpSpec.js
 ```
 
-`hello.js`:
+*hello.js*:
 
-```
+```javascript
 function hello() {
   return 0;
 }
 ```
 
-`helloSpec.js`:
+*helloSpec.js*:
 
-```
+```javascript
 describe('hello', function() {
   it('should return 0', function() {
     expect(hello()).toEqual(0);
@@ -50,7 +52,7 @@ Karma is written by google's [AngularJS](https://angularjs.org/) team, and they 
 
 After that, let's install the packages we need:
 
-```
+```bash
 $ npm install karma --save-dev
 $ npm install karma-jasmine karma-phantomjs-launcher karma-chrome-launcher --save-dev
 ```
@@ -67,13 +69,13 @@ Configuration
 
 Karma has an [interactive](https://karma-runner.github.io/0.12/intro/configuration.html) command to help us generate config files:
 
-```
+```bash
 $ ./node_modules/karma/bin/karma init
 ```
 
 It will ask you some questions and you will be able to choose the answers from command line, after that it will generate a `karma.config.js` file for you.
 
-```
+```bash
 $ ./node_modules/karma/bin/karma init
 
 Which testing framework do you want to use ?
@@ -119,7 +121,7 @@ Karma does not serve all files by default, which means it will only serve the fi
 
 _RequireJS_:
 
-```
+```javascript
     files: [
       { pattern: 'src/**/*.js', included: false, served: true },
       'test/**/*Spec.js'
@@ -128,7 +130,7 @@ _RequireJS_:
 
 _Closure_:
 
-```
+```javascript
     files: [
       { pattern: 'CLOSURE_LIB_ROOT/**/*.js', included: false, served: true },
       'src/**/*Spec.js'
@@ -139,9 +141,9 @@ _Closure_:
 
 By default, Karma will load all script in an iframe, and run the test, but when you are using PhantomJS, phantomjs will expose global variables like `window._phantom`. If we want to detect phantomjs in our test source like:
 
-`testSpec.js`:
+*testSpec.js*:
 
-```
+```javascript
   if (window._phantom) {
     //Add some function that phantomjs not support
   }
@@ -149,9 +151,9 @@ By default, Karma will load all script in an iframe, and run the test, but when 
 
 It won't happen because the `_phantom` global variable will not be set in the iframe. Now we need to specify Karma to not use iframe:
 
-`karma.config.js`:
+*karma.config.js*:
 
-```
+```javascript
   client: {
     useIframe: false
   }
@@ -163,16 +165,17 @@ Use grunt-karma
 -------
 If you want to use grunt to start karma, which will be helpful for CI runners, you can try to use [grunt-karma](https://github.com/karma-runner/grunt-karma):
 
-```
+```bash
 $ npm install grunt-karma --save-dev
-$ npm install karma-junit-reporter --save-dev //this allows to output junit report for CI like Jenkins
+$ npm install karma-junit-reporter --save-dev #this allows to output junit report for CI like Jenkins
 ```
 
 and you can write all your configuration in the Gruntfile.js instead of in a separate config.js file, it is also able to define separate options for different environment, like CI and local development. A simple example:
 
-`Gruntfile.js`
+*Gruntfile.js*:
 
-```
+
+```javascript
     karma: {
       options: {
         frameworks: ['jasmine'],
