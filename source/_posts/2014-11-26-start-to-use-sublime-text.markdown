@@ -14,6 +14,18 @@ Start to use, why
 
 #### Front end
 
+EditorConfig.sublime-package
+GitGutter.sublime-package
+JavaScriptNext - ES6 Syntax.sublime-package
+LiveStyle.sublime-package
+Markdown Extended.sublime-package
+Modific.sublime-package
+Package Control.sublime-package
+sublemacspro.sublime-package
+TrailingSpaces.sublime-package
+Schemr.sublime-package
+Themr.sublime-package
+
 #### Useful commands
 
 #### Tips & Tricks
