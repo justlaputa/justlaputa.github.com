@@ -26,7 +26,7 @@ Even though we try to upgrade to a more powerful EC2 instance, it still can not 
 
 ### How Gitlab handles Merge Request
 
-First, we can find Gitlab backend architecture from the [official document](http://doc.gitlab.com/ce/development/architecture.html#system-layout). The key part happens in `gitlab-satellites`.
+You can find Gitlab backend architecture from the [official document](http://doc.gitlab.com/ce/development/architecture.html#system-layout). The key part happens in `gitlab-satellites`.
 
 If login to your Gitlab server, you can find two places which stores the git repository:
 
@@ -37,3 +37,165 @@ this is where the real git repository is stored, which is called as the `bare re
 `/home/git/gitlab-satellites`
 
 this is a clone of the real repository from above folder. And most git operation will be happen in this **satellite** folder.
+
+#### Check merge request
+First, let's see how does Gitlab check if a merge request is mergeable.
+
+When new merge request is created, it will call this function in [`merge_request_controller.rb`](https://gitlab.com/gitlab-org/gitlab-ce/blob/d321305c00f934db9becac1aa9726c3e9b400df5/app/controllers/projects/merge_requests_controller.rb#L140):
+
+````ruby
+def automerge_check
+  if @merge_request.unchecked?
+    @merge_request.check_if_can_be_merged
+  end
+
+  closes_issues
+
+  render partial: "projects/merge_requests/widget/show.html.haml", layout: false
+end
+````
+
+in [`merge_request.rb`](https://gitlab.com/gitlab-org/gitlab-ce/blob/d321305c00f934db9becac1aa9726c3e9b400df5/app/models/merge_request.rb#L207)
+
+````ruby
+def check_if_can_be_merged
+  if Gitlab::Satellite::MergeAction.new(self.author, self).can_be_merged?
+    mark_as_mergeable
+  else
+    mark_as_unmergeable
+  end
+end
+````
+
+finally in [`merge_action.rb`](https://gitlab.com/gitlab-org/gitlab-ce/blob/d321305c00f934db9becac1aa9726c3e9b400df5/lib/gitlab/satellite/merge_action.rb#L13):
+
+````ruby
+def can_be_merged?
+  in_locked_and_timed_satellite do |merge_repo|
+    prepare_satellite!(merge_repo)
+    merge_in_satellite!(merge_repo)
+  end
+end
+
+def merge_in_satellite!(repo, message = nil)
+  update_satellite_source_and_target!(repo)
+
+  message ||= "Merge branch '#{merge_request.source_branch}' into '#{merge_request.target_branch}'"
+
+  # merge the source branch into the satellite
+  # will raise CommandFailed when merge fails
+  repo.git.merge(default_options({ no_ff: true }), "-m#{message}", "source/#{merge_request.source_branch}")
+rescue Grit::Git::CommandFailed => ex
+  handle_exception(ex)
+end
+
+# Assumes a satellite exists that is a fresh clone of the projects repo, prepares satellite for merges, diffs etc
+def update_satellite_source_and_target!(repo)
+  repo.remote_add('source', merge_request.source_project.repository.path_to_repo)
+  repo.remote_fetch('source')
+  repo.git.checkout(default_options({ b: true }), merge_request.target_branch, "origin/#{merge_request.target_branch}")
+rescue Grit::Git::CommandFailed => ex
+  handle_exception(ex)
+end
+````
+
+As you can see. The final call is `merge_in_satellite!` method, which will run the `git merge` command in your git repository's satellite folder.
+
+#### Accept Merge Request
+When user click the **Accept Merge Request** button, here is what happens:
+
+in [`merge_request_controller`](https://gitlab.com/gitlab-org/gitlab-ce/blob/d321305c00f934db9becac1aa9726c3e9b400df5/app/controllers/projects/merge_requests_controller.rb#L150), the `automerge` method will be called:
+
+````ruby
+def automerge
+  return access_denied! unless @merge_request.can_be_merged_by?(current_user)
+
+  if @merge_request.automergeable?
+    AutoMergeWorker.perform_async(@merge_request.id, current_user.id, params)
+    @status = true
+  else
+    @status = false
+  end
+end
+````
+
+We can find that it use an worker to perform an async task, this is a [Sidekiq](http://sidekiq.org/) task:
+
+[`auto_merge_worker.rb`](https://gitlab.com/gitlab-org/gitlab-ce/blob/d321305c00f934db9becac1aa9726c3e9b400df5/app/workers/auto_merge_worker.rb#L6)
+````ruby
+class AutoMergeWorker
+  include Sidekiq::Worker
+
+  sidekiq_options queue: :default
+
+  def perform(merge_request_id, current_user_id, params)
+    params = params.with_indifferent_access
+    current_user = User.find(current_user_id)
+    merge_request = MergeRequest.find(merge_request_id)
+    merge_request.should_remove_source_branch = params[:should_remove_source_branch]
+    merge_request.automerge!(current_user, params[:commit_message])
+  end
+end
+````
+
+and it call the [`merge_request.rb`](https://gitlab.com/gitlab-org/gitlab-ce/blob/d321305c00f934db9becac1aa9726c3e9b400df5/app/models/merge_request.rb#L223) **auto_merge!** method:
+
+````ruby
+def automerge!(current_user, commit_message = nil)
+  return unless automergeable?
+
+  MergeRequests::AutoMergeService.
+    new(target_project, current_user).
+    execute(self, commit_message)
+end
+````
+
+then it calls the [`auto_merge_service.rb`](https://gitlab.com/gitlab-org/gitlab-ce/blob/d321305c00f934db9becac1aa9726c3e9b400df5/app/services/merge_requests/auto_merge_service.rb#L8) **execute** method:
+
+````ruby
+def execute(merge_request, commit_message)
+    merge_request.lock_mr
+
+    if Gitlab::Satellite::MergeAction.new(current_user, merge_request).merge!(commit_message)
+      merge_request.merge
+
+      create_merge_event(merge_request, current_user)
+      create_note(merge_request)
+      notification_service.merge_mr(merge_request, current_user)
+      execute_hooks(merge_request, 'merge')
+
+      true
+    else
+      merge_request.unlock_mr
+      false
+    end
+....
+````
+
+Here, it use the same `MergeAction` class, but called a different method:
+
+````ruby
+def merge!(merge_commit_message = nil)
+  in_locked_and_timed_satellite do |merge_repo|
+    prepare_satellite!(merge_repo)
+    if merge_in_satellite!(merge_repo, merge_commit_message)
+      # push merge back to bare repo
+      # will raise CommandFailed when push fails
+      merge_repo.git.push(default_options, :origin, merge_request.target_branch)
+
+      # remove source branch
+      if merge_request.remove_source_branch?
+        # will raise CommandFailed when push fails
+        merge_repo.git.push(default_options, :origin, ":#{merge_request.source_branch}")
+        merge_request.source_project.repository.expire_branch_names
+      end
+      # merge, push and branch removal successful
+      true
+    end
+  end
+rescue Grit::Git::CommandFailed => ex
+  handle_exception(ex)
+end
+````
+
+Now you see, the differnet of `Accept Merge Request` is that it will execute the git `push` command after it merge in the satellite folder, that is absolutely what `Accept` should do.
