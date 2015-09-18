@@ -198,4 +198,26 @@ rescue Grit::Git::CommandFailed => ex
 end
 ````
 
-Now you see, the differnet of `Accept Merge Request` is that it will execute the git `push` command after it merge in the satellite folder, that is absolutely what `Accept` should do.
+Now you see, the different of `Accept Merge Request` is that it will execute the git `push` command after it merge in the satellite folder, that is absolutely what `Accept` should do.
+
+You may think that, the **Accept** process is asynchronous, **Check** is synchronous, so at least these two process can be done in parallel. But there is one more thing we should see, in both `can_be_merged?` and `merge!` methods, there is a `in_locked_and_timed_satellite` method, we can find the souce in `action.rb`, but the actual implementation is in [`satellite.rb`](https://gitlab.com/gitlab-org/gitlab-ce/blob/d321305c00f934db9becac1aa9726c3e9b400df5/lib/gitlab/satellite/satellite.rb#L59)
+
+````ruby
+# * Locks the satellite
+# * Changes the current directory to the satellite's working dir
+# * Yields
+def lock
+  project.ensure_satellite_exists
+
+  File.open(lock_file, "w+") do |f|
+    begin
+      f.flock File::LOCK_EX
+      yield
+    ensure
+      f.flock File::LOCK_UN
+    end
+  end
+end
+````
+
+In every merge or check merge, it locks the satellite by [lock](http://ruby-doc.org/core-2.1.5/File.html#method-i-flock) the file. So even the accept process is asynchronous by Sidekiq, but it has to wait for the file lock if some other check or accept process is running. This whole strategy make all **check** and **accept** process running in sequential order. So when you have many developers Create/Accept merge request at same time, all process will be running in sequential, and that's why you have to wait long time for your merge request.
