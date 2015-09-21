@@ -4,7 +4,7 @@
   <title><![CDATA[Coding in the Sky]]></title>
   <link href="http://laputa.io/atom.xml" rel="self"/>
   <link href="http://laputa.io/"/>
-  <updated>2014-11-19T18:50:34+09:00</updated>
+  <updated>2015-09-21T20:30:17+09:00</updated>
   <id>http://laputa.io/</id>
   <author>
     <name><![CDATA[laputa]]></name>
@@ -12,6 +12,467 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[So, Your Gitlab Is Slow?]]></title>
+    <link href="http://laputa.io/blog/2015/09/15/so-your-gitlab-is-slow/"/>
+    <updated>2015-09-15T22:00:55+09:00</updated>
+    <id>http://laputa.io/blog/2015/09/15/so-your-gitlab-is-slow</id>
+    <content type="html"><![CDATA[<p>Our develop team use Gitlab for a long time, recently I get into some performance issues while using it. In this post, I will share our problem and some tips to investigate and improve it.</p>
+
+<h3>Problems</h3>
+
+<p>Our develop team has about 100 individual developers, mainly working on a single big repository(about 1GB). As Gitlab CE&rsquo;s <a href="http://doc.gitlab.com/ce/install/requirements.html#cpu">official document</a> suggests:</p>
+
+<blockquote><p>2GB RAM is the recommended memory size and supports up to 100 users</p></blockquote>
+
+<p>In the beginning of the project, we don&rsquo;t have so much developers, and source code is not so big. We used an EC2 <em>m3.large</em> instance(2 CPU, 7.5GB MEM), it was OK. But soon, as developers and source code size increase, we find that the Gitlab website sometimes can not response quickly, and our front Nginx returns <em>502 Bad Gateway</em>. We thought is was because our EC2 instance is not powerful enough, so we upgrade to <em>m3.xlarge</em>(4CPU, 15GB MEM), it was a quick solution and worked well for some time.</p>
+
+<p>But it does not last long, as our project is preparing to go to release cycle, and every sprint has strict deadline. Our developers tend to submit a lot of merge requests near the date of development deadline. And at that time, our Gitlab server has big problem in handling the merge request page:</p>
+
+<ul>
+<li>When developer <strong>create</strong> Merge Request, the MR page would open and Gitlab start to <strong>checking merge request</strong>, this process cost long time and sometimes it just not response with the result</li>
+<li>When developer <strong>accept</strong> Merge Request, Gitlab start the merge, and show a spinner, but it takes so long time(sometimes more than 30mins), and sometimes it just never stop</li>
+</ul>
+
+
+<p>Even though we try to upgrade to a more powerful EC2 instance, it still can not solve the problem. I started to investigate the problem from source code.</p>
+
+<h3>How Gitlab handles Merge Request</h3>
+
+<p>You can find Gitlab backend architecture from the <a href="http://doc.gitlab.com/ce/development/architecture.html#system-layout">official document</a>. The key part happens in <code>gitlab-satellites</code>.</p>
+
+<p>If login to your Gitlab server, you can find two places which stores the git repository:</p>
+
+<p><code>/home/git/repositories</code></p>
+
+<p>this is where the real git repository is stored, which is called as the <code>bare repository</code></p>
+
+<p><code>/home/git/gitlab-satellites</code></p>
+
+<p>this is a clone of the real repository from above folder. And most git operation will be happen in this <strong>satellite</strong> folder.</p>
+
+<h4>Check merge request</h4>
+
+<p>First, let&rsquo;s see how does Gitlab check if a merge request is mergeable.</p>
+
+<p>When new merge request is created, it will call this function in <a href="https://gitlab.com/gitlab-org/gitlab-ce/blob/d321305c00f934db9becac1aa9726c3e9b400df5/app/controllers/projects/merge_requests_controller.rb#L140"><code>merge_request_controller.rb</code></a>:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">automerge_check</span>
+</span><span class='line'>  <span class="k">if</span> <span class="vi">@merge_request</span><span class="o">.</span><span class="n">unchecked?</span>
+</span><span class='line'>    <span class="vi">@merge_request</span><span class="o">.</span><span class="n">check_if_can_be_merged</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">closes_issues</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">render</span> <span class="ss">partial</span><span class="p">:</span> <span class="s2">&quot;projects/merge_requests/widget/show.html.haml&quot;</span><span class="p">,</span> <span class="ss">layout</span><span class="p">:</span> <span class="kp">false</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>in <a href="https://gitlab.com/gitlab-org/gitlab-ce/blob/d321305c00f934db9becac1aa9726c3e9b400df5/app/models/merge_request.rb#L207"><code>merge_request.rb</code></a></p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">check_if_can_be_merged</span>
+</span><span class='line'>  <span class="k">if</span> <span class="no">Gitlab</span><span class="o">::</span><span class="no">Satellite</span><span class="o">::</span><span class="no">MergeAction</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="nb">self</span><span class="o">.</span><span class="n">author</span><span class="p">,</span> <span class="nb">self</span><span class="p">)</span><span class="o">.</span><span class="n">can_be_merged?</span>
+</span><span class='line'>    <span class="n">mark_as_mergeable</span>
+</span><span class='line'>  <span class="k">else</span>
+</span><span class='line'>    <span class="n">mark_as_unmergeable</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>finally in <a href="https://gitlab.com/gitlab-org/gitlab-ce/blob/d321305c00f934db9becac1aa9726c3e9b400df5/lib/gitlab/satellite/merge_action.rb#L13"><code>merge_action.rb</code></a>:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">can_be_merged?</span>
+</span><span class='line'>  <span class="n">in_locked_and_timed_satellite</span> <span class="k">do</span> <span class="o">|</span><span class="n">merge_repo</span><span class="o">|</span>
+</span><span class='line'>    <span class="n">prepare_satellite!</span><span class="p">(</span><span class="n">merge_repo</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">merge_in_satellite!</span><span class="p">(</span><span class="n">merge_repo</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">merge_in_satellite!</span><span class="p">(</span><span class="n">repo</span><span class="p">,</span> <span class="n">message</span> <span class="o">=</span> <span class="kp">nil</span><span class="p">)</span>
+</span><span class='line'>  <span class="n">update_satellite_source_and_target!</span><span class="p">(</span><span class="n">repo</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">message</span> <span class="o">||=</span> <span class="s2">&quot;Merge branch &#39;</span><span class="si">#{</span><span class="n">merge_request</span><span class="o">.</span><span class="n">source_branch</span><span class="si">}</span><span class="s2">&#39; into &#39;</span><span class="si">#{</span><span class="n">merge_request</span><span class="o">.</span><span class="n">target_branch</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1"># merge the source branch into the satellite</span>
+</span><span class='line'>  <span class="c1"># will raise CommandFailed when merge fails</span>
+</span><span class='line'>  <span class="n">repo</span><span class="o">.</span><span class="n">git</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">default_options</span><span class="p">({</span> <span class="ss">no_ff</span><span class="p">:</span> <span class="kp">true</span> <span class="p">}),</span> <span class="s2">&quot;-m</span><span class="si">#{</span><span class="n">message</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;source/</span><span class="si">#{</span><span class="n">merge_request</span><span class="o">.</span><span class="n">source_branch</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</span><span class='line'><span class="k">rescue</span> <span class="no">Grit</span><span class="o">::</span><span class="no">Git</span><span class="o">::</span><span class="no">CommandFailed</span> <span class="o">=&gt;</span> <span class="n">ex</span>
+</span><span class='line'>  <span class="n">handle_exception</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Assumes a satellite exists that is a fresh clone of the projects repo, prepares satellite for merges, diffs etc</span>
+</span><span class='line'><span class="k">def</span> <span class="nf">update_satellite_source_and_target!</span><span class="p">(</span><span class="n">repo</span><span class="p">)</span>
+</span><span class='line'>  <span class="n">repo</span><span class="o">.</span><span class="n">remote_add</span><span class="p">(</span><span class="s1">&#39;source&#39;</span><span class="p">,</span> <span class="n">merge_request</span><span class="o">.</span><span class="n">source_project</span><span class="o">.</span><span class="n">repository</span><span class="o">.</span><span class="n">path_to_repo</span><span class="p">)</span>
+</span><span class='line'>  <span class="n">repo</span><span class="o">.</span><span class="n">remote_fetch</span><span class="p">(</span><span class="s1">&#39;source&#39;</span><span class="p">)</span>
+</span><span class='line'>  <span class="n">repo</span><span class="o">.</span><span class="n">git</span><span class="o">.</span><span class="n">checkout</span><span class="p">(</span><span class="n">default_options</span><span class="p">({</span> <span class="ss">b</span><span class="p">:</span> <span class="kp">true</span> <span class="p">}),</span> <span class="n">merge_request</span><span class="o">.</span><span class="n">target_branch</span><span class="p">,</span> <span class="s2">&quot;origin/</span><span class="si">#{</span><span class="n">merge_request</span><span class="o">.</span><span class="n">target_branch</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</span><span class='line'><span class="k">rescue</span> <span class="no">Grit</span><span class="o">::</span><span class="no">Git</span><span class="o">::</span><span class="no">CommandFailed</span> <span class="o">=&gt;</span> <span class="n">ex</span>
+</span><span class='line'>  <span class="n">handle_exception</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>As you can see. The final call is <code>merge_in_satellite!</code> method, which will run the <code>git merge</code> command in your git repository&rsquo;s satellite folder.</p>
+
+<h4>Accept Merge Request</h4>
+
+<p>When user click the <strong>Accept Merge Request</strong> button, here is what happens:</p>
+
+<p>in <a href="https://gitlab.com/gitlab-org/gitlab-ce/blob/d321305c00f934db9becac1aa9726c3e9b400df5/app/controllers/projects/merge_requests_controller.rb#L150"><code>merge_request_controller</code></a>, the <code>automerge</code> method will be called:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">automerge</span>
+</span><span class='line'>  <span class="k">return</span> <span class="n">access_denied!</span> <span class="k">unless</span> <span class="vi">@merge_request</span><span class="o">.</span><span class="n">can_be_merged_by?</span><span class="p">(</span><span class="n">current_user</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">if</span> <span class="vi">@merge_request</span><span class="o">.</span><span class="n">automergeable?</span>
+</span><span class='line'>    <span class="no">AutoMergeWorker</span><span class="o">.</span><span class="n">perform_async</span><span class="p">(</span><span class="vi">@merge_request</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">current_user</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@status</span> <span class="o">=</span> <span class="kp">true</span>
+</span><span class='line'>  <span class="k">else</span>
+</span><span class='line'>    <span class="vi">@status</span> <span class="o">=</span> <span class="kp">false</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>We can find that it use an worker to perform an async task, this is a <a href="http://sidekiq.org/">Sidekiq</a> task:</p>
+
+<p><a href="https://gitlab.com/gitlab-org/gitlab-ce/blob/d321305c00f934db9becac1aa9726c3e9b400df5/app/workers/auto_merge_worker.rb#L6"><code>auto_merge_worker.rb</code></a></p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">AutoMergeWorker</span>
+</span><span class='line'>  <span class="kp">include</span> <span class="no">Sidekiq</span><span class="o">::</span><span class="no">Worker</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">sidekiq_options</span> <span class="ss">queue</span><span class="p">:</span> <span class="ss">:default</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">perform</span><span class="p">(</span><span class="n">merge_request_id</span><span class="p">,</span> <span class="n">current_user_id</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">params</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">with_indifferent_access</span>
+</span><span class='line'>    <span class="n">current_user</span> <span class="o">=</span> <span class="no">User</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">current_user_id</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">merge_request</span> <span class="o">=</span> <span class="no">MergeRequest</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">merge_request_id</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">merge_request</span><span class="o">.</span><span class="n">should_remove_source_branch</span> <span class="o">=</span> <span class="n">params</span><span class="o">[</span><span class="ss">:should_remove_source_branch</span><span class="o">]</span>
+</span><span class='line'>    <span class="n">merge_request</span><span class="o">.</span><span class="n">automerge!</span><span class="p">(</span><span class="n">current_user</span><span class="p">,</span> <span class="n">params</span><span class="o">[</span><span class="ss">:commit_message</span><span class="o">]</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>and it call the <a href="https://gitlab.com/gitlab-org/gitlab-ce/blob/d321305c00f934db9becac1aa9726c3e9b400df5/app/models/merge_request.rb#L223"><code>merge_request.rb</code></a> <strong>auto_merge!</strong> method:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">automerge!</span><span class="p">(</span><span class="n">current_user</span><span class="p">,</span> <span class="n">commit_message</span> <span class="o">=</span> <span class="kp">nil</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">return</span> <span class="k">unless</span> <span class="n">automergeable?</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="no">MergeRequests</span><span class="o">::</span><span class="no">AutoMergeService</span><span class="o">.</span>
+</span><span class='line'>    <span class="kp">new</span><span class="p">(</span><span class="n">target_project</span><span class="p">,</span> <span class="n">current_user</span><span class="p">)</span><span class="o">.</span>
+</span><span class='line'>    <span class="n">execute</span><span class="p">(</span><span class="nb">self</span><span class="p">,</span> <span class="n">commit_message</span><span class="p">)</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>then it calls the <a href="https://gitlab.com/gitlab-org/gitlab-ce/blob/d321305c00f934db9becac1aa9726c3e9b400df5/app/services/merge_requests/auto_merge_service.rb#L8"><code>auto_merge_service.rb</code></a> <strong>execute</strong> method:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="n">merge_request</span><span class="p">,</span> <span class="n">commit_message</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">merge_request</span><span class="o">.</span><span class="n">lock_mr</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">if</span> <span class="no">Gitlab</span><span class="o">::</span><span class="no">Satellite</span><span class="o">::</span><span class="no">MergeAction</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">current_user</span><span class="p">,</span> <span class="n">merge_request</span><span class="p">)</span><span class="o">.</span><span class="n">merge!</span><span class="p">(</span><span class="n">commit_message</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">merge_request</span><span class="o">.</span><span class="n">merge</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="n">create_merge_event</span><span class="p">(</span><span class="n">merge_request</span><span class="p">,</span> <span class="n">current_user</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">create_note</span><span class="p">(</span><span class="n">merge_request</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">notification_service</span><span class="o">.</span><span class="n">merge_mr</span><span class="p">(</span><span class="n">merge_request</span><span class="p">,</span> <span class="n">current_user</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">execute_hooks</span><span class="p">(</span><span class="n">merge_request</span><span class="p">,</span> <span class="s1">&#39;merge&#39;</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="kp">true</span>
+</span><span class='line'>    <span class="k">else</span>
+</span><span class='line'>      <span class="n">merge_request</span><span class="o">.</span><span class="n">unlock_mr</span>
+</span><span class='line'>      <span class="kp">false</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'><span class="o">.</span><span class="n">.</span><span class="o">.</span><span class="n">.</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Here, it use the same <code>MergeAction</code> class, but called a different method:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">merge!</span><span class="p">(</span><span class="n">merge_commit_message</span> <span class="o">=</span> <span class="kp">nil</span><span class="p">)</span>
+</span><span class='line'>  <span class="n">in_locked_and_timed_satellite</span> <span class="k">do</span> <span class="o">|</span><span class="n">merge_repo</span><span class="o">|</span>
+</span><span class='line'>    <span class="n">prepare_satellite!</span><span class="p">(</span><span class="n">merge_repo</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">if</span> <span class="n">merge_in_satellite!</span><span class="p">(</span><span class="n">merge_repo</span><span class="p">,</span> <span class="n">merge_commit_message</span><span class="p">)</span>
+</span><span class='line'>      <span class="c1"># push merge back to bare repo</span>
+</span><span class='line'>      <span class="c1"># will raise CommandFailed when push fails</span>
+</span><span class='line'>      <span class="n">merge_repo</span><span class="o">.</span><span class="n">git</span><span class="o">.</span><span class="n">push</span><span class="p">(</span><span class="n">default_options</span><span class="p">,</span> <span class="ss">:origin</span><span class="p">,</span> <span class="n">merge_request</span><span class="o">.</span><span class="n">target_branch</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="c1"># remove source branch</span>
+</span><span class='line'>      <span class="k">if</span> <span class="n">merge_request</span><span class="o">.</span><span class="n">remove_source_branch?</span>
+</span><span class='line'>        <span class="c1"># will raise CommandFailed when push fails</span>
+</span><span class='line'>        <span class="n">merge_repo</span><span class="o">.</span><span class="n">git</span><span class="o">.</span><span class="n">push</span><span class="p">(</span><span class="n">default_options</span><span class="p">,</span> <span class="ss">:origin</span><span class="p">,</span> <span class="s2">&quot;:</span><span class="si">#{</span><span class="n">merge_request</span><span class="o">.</span><span class="n">source_branch</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</span><span class='line'>        <span class="n">merge_request</span><span class="o">.</span><span class="n">source_project</span><span class="o">.</span><span class="n">repository</span><span class="o">.</span><span class="n">expire_branch_names</span>
+</span><span class='line'>      <span class="k">end</span>
+</span><span class='line'>      <span class="c1"># merge, push and branch removal successful</span>
+</span><span class='line'>      <span class="kp">true</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">rescue</span> <span class="no">Grit</span><span class="o">::</span><span class="no">Git</span><span class="o">::</span><span class="no">CommandFailed</span> <span class="o">=&gt;</span> <span class="n">ex</span>
+</span><span class='line'>  <span class="n">handle_exception</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now you see, the different of <code>Accept Merge Request</code> is that it will execute the git <code>push</code> command after it merge in the satellite folder, that is absolutely what <code>Accept</code> should do.</p>
+
+<p>You may think that, the <strong>Accept</strong> process is asynchronous, <strong>Check</strong> is synchronous, so at least these two process can be done in parallel. But there is one more thing we should see, in both <code>can_be_merged?</code> and <code>merge!</code> methods, there is a <code>in_locked_and_timed_satellite</code> method, we can find the souce in <code>action.rb</code>, but the actual implementation is in <a href="https://gitlab.com/gitlab-org/gitlab-ce/blob/d321305c00f934db9becac1aa9726c3e9b400df5/lib/gitlab/satellite/satellite.rb#L59"><code>satellite.rb</code></a></p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1"># * Locks the satellite</span>
+</span><span class='line'><span class="c1"># * Changes the current directory to the satellite&#39;s working dir</span>
+</span><span class='line'><span class="c1"># * Yields</span>
+</span><span class='line'><span class="k">def</span> <span class="nf">lock</span>
+</span><span class='line'>  <span class="n">project</span><span class="o">.</span><span class="n">ensure_satellite_exists</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="no">File</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">lock_file</span><span class="p">,</span> <span class="s2">&quot;w+&quot;</span><span class="p">)</span> <span class="k">do</span> <span class="o">|</span><span class="n">f</span><span class="o">|</span>
+</span><span class='line'>    <span class="k">begin</span>
+</span><span class='line'>      <span class="n">f</span><span class="o">.</span><span class="n">flock</span> <span class="no">File</span><span class="o">::</span><span class="no">LOCK_EX</span>
+</span><span class='line'>      <span class="k">yield</span>
+</span><span class='line'>    <span class="k">ensure</span>
+</span><span class='line'>      <span class="n">f</span><span class="o">.</span><span class="n">flock</span> <span class="no">File</span><span class="o">::</span><span class="no">LOCK_UN</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Whenever checking or accepting a merge request, it locks the satellite by <a href="http://ruby-doc.org/core-2.1.5/File.html#method-i-flock">lock</a> a file, and each satellite has a single lock file. So even the accept process is asynchronous by Sidekiq, but it has to wait for the file lock if some other check or accept process is running. This whole strategy make all <strong>check</strong> and <strong>accept</strong> process running in sequential order. So when you have many developers Create/Accept merge request at same time, all process will be running in sequential, and that&rsquo;s why you have to wait long time for your merge request.</p>
+
+<h3>The git gc</h3>
+
+<p>Besides all process is sequential, we found another problem that affects speed. I enable the git command log by edit this file:</p>
+
+<p><a href="https://gitlab.com/gitlab-org/gitlab-ce/blob/d321305c00f934db9becac1aa9726c3e9b400df5/config/initializers/3_grit_ext.rb"><code>config/initializers/3_grit_ext.rb</code></a>:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="nb">require</span> <span class="s1">&#39;grit&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="no">Grit</span><span class="o">::</span><span class="no">Git</span><span class="o">.</span><span class="n">git_binary</span> <span class="o">=</span> <span class="no">Gitlab</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">git</span><span class="o">.</span><span class="n">bin_path</span>
+</span><span class='line'><span class="no">Grit</span><span class="o">::</span><span class="no">Git</span><span class="o">.</span><span class="n">git_timeout</span> <span class="o">=</span> <span class="no">Gitlab</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">git</span><span class="o">.</span><span class="n">timeout</span>
+</span><span class='line'><span class="no">Grit</span><span class="o">::</span><span class="no">Git</span><span class="o">.</span><span class="n">git_max_size</span> <span class="o">=</span> <span class="no">Gitlab</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">git</span><span class="o">.</span><span class="n">max_size</span>
+</span><span class='line'><span class="no">Grit</span><span class="o">::</span><span class="n">debug</span> <span class="o">=</span> <span class="kp">true</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then the git command detail will be logged to log file <code>unicorn_stdout.log</code>, <code>sidekiq.log</code>. We can see what&rsquo;s going on when Gitlab check or accept merge request. After I check the log file, I found that after every git merge process, it tries to run git gc:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="no">Auto</span> <span class="n">packing</span> <span class="n">the</span> <span class="n">repository</span> <span class="k">for</span> <span class="n">optimum</span> <span class="n">performance</span><span class="o">.</span> <span class="no">You</span> <span class="n">may</span> <span class="n">also</span>
+</span><span class='line'><span class="n">run</span> <span class="s2">&quot;git gc&quot;</span> <span class="n">manually</span><span class="o">.</span> <span class="no">See</span> <span class="s2">&quot;git help gc&quot;</span> <span class="k">for</span> <span class="n">more</span> <span class="n">information</span><span class="o">.</span>
+</span><span class='line'><span class="ss">warning</span><span class="p">:</span> <span class="no">There</span> <span class="n">are</span> <span class="n">too</span> <span class="n">many</span> <span class="n">unreachable</span> <span class="n">loose</span> <span class="n">objects</span><span class="p">;</span> <span class="n">run</span> <span class="s1">&#39;git prune&#39;</span> <span class="n">to</span> <span class="n">remove</span> <span class="n">them</span><span class="o">.</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The reason is that, the satellite repository is used too often, and if you&rsquo;ve got a big repository, and around 100 developers working on it, it is very likely to make many loose objects, and in which case makes git think it should run <code>gc</code> to clean up. And <code>git gc</code> cost a lot of time, what&rsquo;s more, even it runs once, the next time git merge will still trigger the gc command. The reason is as the output says, we have too many loose objects in the git repository, one way to avoid this is run <code>git prune</code> with expire option:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>git prune --expire<span class="o">=</span>now
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You can write a cron task to run this command regularly to clean up your gitlab satellite, it would avoid the <code>gc</code> process and enhance the gitlab performance.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Start to Use Sublime Text]]></title>
+    <link href="http://laputa.io/blog/2014/11/26/start-to-use-sublime-text/"/>
+    <updated>2014-11-26T15:57:47+09:00</updated>
+    <id>http://laputa.io/blog/2014/11/26/start-to-use-sublime-text</id>
+    <content type="html"><![CDATA[<p>Recently I started to use Sublime Text as my main editor. I want to write something about my first experience of it.</p>
+
+<p>I&rsquo;m an Emacs user and I love Emacs. The direct reason that I switch to Sublime Text is this slides I read: <a href="https://speakerdeck.com/addyosmani/front-end-tooling-workflows">Front-end Tooling Workflows</a>. Yet I have been thinking about it long ago, some other reasons are:</p>
+
+<ul>
+<li>Emacs does not look cool in Mac OSX, and I always use Sublime Text at home, and Emacs at office</li>
+<li>Sublime has good UI and yet still very simple and fast!</li>
+<li>Nowadays, more and more front js plugins are developed for Sublime Text, but it is always hard to config them in Emacs</li>
+</ul>
+
+
+<p>If you are a front end developer, I recommend you to try sublime, I don&rsquo;t want to start another editor war, but try to find the best thing for your work is never bad.</p>
+
+<p>Now I&rsquo;ll share my first experience of Sublime Text, hope it helps other developers.</p>
+
+<h3>General</h3>
+
+<h4>Installation</h4>
+
+<p>The latest version is <a href="http://www.sublimetext.com/3">Sublime Text 3</a>, it is in Beta, but quite stable to use, and now most major plugins already support Sublime Text 3, so it is recommend to use this version.</p>
+
+<h4>Documents</h4>
+
+<p>Here is the official document site: <a href="http://www.sublimetext.com/docs/3/">Sublime Text 3 Doc</a>, yet it is too simple. There is also an unofficial doc site, which is also recommended by the official doc: <a href="http://docs.sublimetext.info/en/latest/index.html">Unofficial Doc</a>.</p>
+
+<p>Now you don&rsquo;t have to read the doc, the editor is quite simple and straight to use, you can refer to the doc when you want some help.</p>
+
+<h4>Most used shortcuts</h4>
+
+<p>Actually, you can find all functions from the menubar, but it is helpful to use some shortcut to save the time.</p>
+
+<p><code>Cmd + Shift + P(mac)/Ctrl + Shift + P(win,linux)</code>: Command prompt, it shows a global prompt and you can type any command, it will search throught all avaliable commands.</p>
+
+<p>[pic of command prompt]</p>
+
+<p><code>Package Control</code>: after you open the command prompt, type <em>package ins</em>, it will fuzzy search and match the <code>Package Control: Install Package</code> command, type <em>Enter</em> then you can type any package to install. It is quite simple and fast to install any package you want.</p>
+
+<h3>Front end</h3>
+
+<p>EditorConfig.sublime-package
+GitGutter.sublime-package
+JavaScriptNext - ES6 Syntax.sublime-package
+LiveStyle.sublime-package
+Markdown Extended.sublime-package
+Modific.sublime-package
+Package Control.sublime-package
+sublemacspro.sublime-package
+TrailingSpaces.sublime-package
+Schemr.sublime-package
+Themr.sublime-package</p>
+
+<h4>Useful commands</h4>
+
+<h4>Tips &amp; Tricks</h4>
+
+<h4>Tutorials</h4>
+
+<h4>References</h4>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Using Karma for Js Unit Testing]]></title>
@@ -308,6 +769,15 @@
 <p>when run <code>grunt karma:continuous</code>, it will avoid using iframe, launch PhantomJS and output junit report for CI. while run <code>grunt karma:dev</code> will launcher Chrome for developers.</p>
 
 <p>For the full project, please take a look at my simple <a href="https://github.com/justlaputa/karma-boilerplate">Github source</a>.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Front End of the New Evernote Web Client Beta]]></title>
+    <link href="http://laputa.io/blog/2014/10/05/front-end-of-the-new-evernote-web-client-beta/"/>
+    <updated>2014-10-05T10:00:12+09:00</updated>
+    <id>http://laputa.io/blog/2014/10/05/front-end-of-the-new-evernote-web-client-beta</id>
+    <content type="html"><![CDATA[
 ]]></content>
   </entry>
   
@@ -1527,340 +1997,6 @@ valHooks: {
 </code></pre>
 
 <p>可以看到 valHooks 对 <em>select</em> 和 <em>option</em> 标签做了处理，对于 <strong>select</strong> 对象，在使用 <strong>.val()</strong> 函数时调用 <strong>get</strong> 方法，找到被选中(selected)的option，并返回 option.val()，在使用 <strong>.val(value)</strong> 函数时，调用 <strong>set</strong> 方法，找到 option 中值与 <em>value</em> 相同的，并设置其为 selected. 对 <em>option</em> 标签的 hook 也可以同样分析。</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Buy HHKB]]></title>
-    <link href="http://laputa.io/blog/2012/08/05/buy-hhkb/"/>
-    <updated>2012-08-05T00:00:00+09:00</updated>
-    <id>http://laputa.io/blog/2012/08/05/buy-hhkb</id>
-    <content type="html"><![CDATA[<h1>入HHKB</h1>
-
-<p>前两天把我的Filco 忍者87 青轴出掉了，出得还算顺利。在萌购上下单入了<a href="http://elitekeyboards.com/products.php?sub=pfu_keyboards,hhkbpro2&amp;pid=pdkb400b">HHKB</a>，小记一下第一次日本海淘的过程。</p>
-
-<!--more-->
-
-
-<ul>
-<li><em>2012-08-05</em> 萌购下单</li>
-<li><em>2012-08-05</em> 14分钟后，萌购向日本Amazon下单，等待发货（萌购反应真快）</li>
-<li><em>2012-08-06</em> Amazon.jp 发货</li>
-<li><em>2012-08-14</em> 到达萌购日本仓库，等待发货（日本物流真心慢。。）</li>
-<li><em>2012-08-15</em> 萌购发货（顺丰到付）</li>
-<li><em>2012-08-17</em> 顺丰到货</li>
-</ul>
-
-
-<p>17号没空收货，于是让顺丰推迟了一天发货，今天早上（18日）拿到键盘。</p>
-
-<p>第一次在萌购海淘，总体还算是很顺利的，前后一共12天，比在美国亚马逊海淘要快一个多星期，上一次在美国亚马逊买的东西用了20多天才到手。不过也在可接受的范围之内了，毕竟海淘就要做好耐心等待的准备么。</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Newly Install Ubuntu]]></title>
-    <link href="http://laputa.io/blog/2012/07/30/newly-install-ubuntu/"/>
-    <updated>2012-07-30T00:00:00+09:00</updated>
-    <id>http://laputa.io/blog/2012/07/30/newly-install-ubuntu</id>
-    <content type="html"><![CDATA[<h1>Replace my work environment to Ubuntu</h1>
-
-<p>Just some notes for my newly installed Ubuntu Linux configuration, use it if this helps.</p>
-
-<!--more-->
-
-
-<h2>install ubuntu and upgrade</h2>
-
-<p>I installed <a href="http://www.ubuntu.com/">Ubuntu 12.04</a> using live usb, createed by <a href="http://www.linuxliveusb.com/">LinuxLive USB Creator</a>, after install:</p>
-
-<pre><code>sudo apt-get update
-sudo apt-get upgrade
-</code></pre>
-
-<h2>System config</h2>
-
-<h3>add user to sudo</h3>
-
-<p>Don&rsquo;t know why, in Ubuntu 12.04 you should add the username at the last line, otherwise it won&rsquo;t work</p>
-
-<pre><code>sudo visudo
-# add at bottom line
-username  ALL=(ALL)NOPASSWD:ALL
-</code></pre>
-
-<h3>disable ALT key shortcut</h3>
-
-<p>Sometimes it is annoying to see the HUD window when pressing ALT key, disable like this:</p>
-
-<pre><code>Settings-&gt;keyboard-&gt;shortcuts-&gt;key to show the HUD-&gt;(press backspace to disable)
-</code></pre>
-
-<h3>disable ALT key on gnome-terminal</h3>
-
-<p>I use zsh and emacs key-binding, so I use alt key a lot, but this is bind to show Menu item in gnome-terminal, disable it like this:</p>
-
-<pre><code>Open gnome-terminal:
-Edit-&gt;Keyboard Shortcuts-&gt;Uncheck menu access keys
-</code></pre>
-
-<h3>change ubuntu tooltip color</h3>
-
-<p>By default, the tooltip window color is white-on-black, which is not so cheerful, especially when you are using Eclipse. Change the color to black-on-yellow like this:</p>
-
-<pre><code>vim /usr/share/themes/Ambiance/gtk-2.0/gtkrc
-gtk-color-scheme = "base_color:#ffffff\nfg_color:#4c4c4c\ntooltip_fg_color:#000000\nselected_bg_color:#f07746\nselected_fg_color:#FFFFFF\ntext_color:#3C3C3C\nbg_color:#F2F1F0\ntooltip_bg_color:#ffffaf\nlink_color:#DD4814"
-</code></pre>
-
-<p>Note that <code>Ambiance</code> is the default gtk color theme, if you are using other theme, edit the corresponding <code>gtkrc</code> file. Log out or restart to see the change.</p>
-
-<h3>auto hide launcher</h3>
-
-<pre><code>Settings-&gt;Appearance-&gt;Behavior-&gt;turn on auto hide
-</code></pre>
-
-<h2>Software</h2>
-
-<h3>common:</h3>
-
-<pre><code>sudo apt-get install vim emacs emacs-goodies-el zsh tmux
-## if you use zsh
-chsh -s /bin/zsh
-</code></pre>
-
-<h3>git</h3>
-
-<pre><code>sudo apt-get install git gitk
-git config --global user.name my_name
-git config --global user.email my_name@some.mail.com
-git config --global color.ui auto
-</code></pre>
-
-<p>I host my home config files on <a href="https://github.com/justlaputa">github</a>, so add this to my home directory</p>
-
-<pre><code>cd ~
-git init
-git remote add origin git@github.com:justlaputa/home-config.git
-git fetch origin
-git checkout -t origin/master
-</code></pre>
-
-<h3>maven</h3>
-
-<pre><code>sudo apt-get install maven
-</code></pre>
-
-<h3>chrome</h3>
-
-<p>Download deb file from google <a href="https://www.google.com/chrome/">official site</a>, or if you want to use unstable release, download from <a href="http://www.chromium.org/getting-involved/dev-channel/">Chrome Release Channel</a>, double click the deb file, it will be installed automatically.</p>
-
-<h3>java</h3>
-
-<p>   download from oracle <a href="http://www.oracle.com/technetwork/java/javase/downloads/index.html">jdk site</a>, see this <a href="https://help.ubuntu.com/community/Java#Oracle_.28Sun.29_Java_6">tutorial</a> to config java</p>
-
-<pre><code>sudo sh jdk-6u33-linux-i586.bin
-sudo mv jdk1.6.0_33 /usr/java
-sudo ln -s jdk1.6.0_33 default
-</code></pre>
-
-<p> config environment variable in your bash config file(or zsh profile)</p>
-
-<pre><code>vim ~/.baserc
-JAVA_HOME=/usr/java/default
-export JAVA_HOME
-</code></pre>
-
-<p> config java</p>
-
-<pre><code>sudo update-alternatives --install "/usr/bin/java" "java" "/usr/java/default/bin/java" 1
-sudo update-alternatives --config java
-(select 1)
-</code></pre>
-
-<p> do the same to <strong>javac</strong>, <strong>javasw</strong>, <strong>libjavaplugin.so</strong>, see the above link, then check java version:</p>
-
-<pre><code> java -version
- javac -version
-</code></pre>
-
-<h3>eclipse</h3>
-
-<p> download from <a href="http://eclipse.org/downloads/">official site</a></p>
-
-<pre><code>mkdir ~/dev
-cd ~/dev
-tar xzf ~/Downloads/eclipse-jee-juno-linux-gtk.tar.gz
-</code></pre>
-
-<h4>eclipse plugins</h4>
-
-<ul>
-<li><a href="http://wiki.eclipse.org/Jetty_WTP_Plugin/Jetty_WTP_Install">jetty wtp</a></li>
-</ul>
-
-
-<h2>Other software</h2>
-
-<h3>fcitx - input method</h3>
-
-<pre><code>sudo apt-get install fcitx
-</code></pre>
-
-<p>open <strong>Input Method Swithcher</strong>, and select fcitx, re-login or restart.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[A Simple Git Cheat Sheet and Tips]]></title>
-    <link href="http://laputa.io/blog/2012/07/11/a-simple-git-cheat-sheet-and-tips/"/>
-    <updated>2012-07-11T00:00:00+09:00</updated>
-    <id>http://laputa.io/blog/2012/07/11/a-simple-git-cheat-sheet-and-tips</id>
-    <content type="html"><![CDATA[<p>Here is a simple Git cheat sheet and I will update this when I find new ones.</p>
-
-<!--more-->
-
-
-<h2>Cheat Sheet:</h2>
-
-<h3>config:</h3>
-
-<pre><code> $ git config --global user.name "John Doe"
- $ git config --global user.email johndoe@example.com
-</code></pre>
-
-<p>   this will store your identity in <em>~/.gitconfig</em>, use <code>--system</code> to store in <em>/etc/gitconfig</em>, use <code>--local</code> to specify a per-repository configuration, which stores in <em>.git/config</em>.</p>
-
-<h3>log</h3>
-
-<pre><code>| git log                                           | view commit log                    |
-| git log -p -2                                     | show patch of last 2 commit        |
-| git log --stat                                    | show simple state                  |
-| git log --pretty=oneline                          | show in other formats              |
-| git log --graph --all --decorate --pretty=oneline | show all branch commits with graph |
-</code></pre>
-
-<h3>undo things</h3>
-
-<pre><code>| git commit --amend       | this will overwrite the last commit |
-| git reset HEAD~1         | discard last commit                 |
-| git reset HEAD filename  | unstage a file                      |
-| git checkout -- filename | undo modified file                  |
-</code></pre>
-
-<h3>remote</h3>
-
-<pre><code>| git remote -v                    | show remote repository  |
-| git remote add [shortname] [url] | add remote repository   |
-| git fetch [remote]               | fetch remote            |
-| git remote show [shortname]      | show remote infomation  |
-| git remote rename [from] [to]    | rename remote shortname |
-| git remote rm [remote]           | remove remote           |
-</code></pre>
-
-<h2>Tricks &amp; Tips</h2>
-
-<h3>clone into an existing directory</h3>
-
-<p>clone a repo into an existing directory,</p>
-
-<pre><code>$ cd PATH/YOU/WANT/TO/PUT/GIT/FILES
-$ git init
-$ git remote add origin git://remote.repo.url.path
-$ git fetch
-$ git checkout -t origin/master
-</code></pre>
-
-<p><code>fetch</code> will get all remote branches to local, but we still need the <code>checkout</code> command to switch to a specific branch,  <code>-t</code> implies <code>-b</code>, which tells git to create a local <strong>master</strong> branch and make it to track the remote master branch, which is <strong>origin/master</strong>.</p>
-
-<h3>view the history of a single file</h3>
-
-<pre><code>$ git log -p filename
-$ git whatchanged -p filename
-
-$ git log -p --follow filename
-$ git blame filename
-
-$ gitk filename
-</code></pre>
-
-<h3>checkout a single file from another branch</h3>
-
-<pre><code>$ git checkout branch_1 -- path/to/file
-</code></pre>
-
-<h3>revert to previous commit/discard current commit</h3>
-
-<p>  if you doesn&rsquo;t push your commit:</p>
-
-<pre><code>git reset --hard HEAD~1
-</code></pre>
-
-<p>  if you already push your commit:</p>
-
-<pre><code>git revert HEAD
-</code></pre>
-
-<h3>rewrite last commit message</h3>
-
-<p>  see this<a href="http://stackoverflow.com/questions/179123/how-do-i-edit-an-incorrect-commit-message-in-git">stackoverflow questions</a></p>
-
-<pre><code>git commit --amend -m "New commit message"
-</code></pre>
-
-<h3>discard all modify</h3>
-
-<pre><code>git checkout .
-</code></pre>
-
-<h3>working with remotes</h3>
-
-<p>  create remote branch</p>
-
-<pre><code>$ git push REMOTENAME BRANCHNAME
-</code></pre>
-
-<p>  delete remote branch</p>
-
-<pre><code>$ git push REMOTENAME :BRANCHNAME
-</code></pre>
-
-<p>  pushing tags</p>
-
-<pre><code>$ git push REMOTENAME TAGNAME
-$ git push REMOTENAME BRANCHNAME --tags
-</code></pre>
-
-<p>  push to multiple remotes at the same time</p>
-
-<pre><code>$ vim .git/config
-[remote "all"]
-url = git@github.com:luoshupeng/commonuseppa.git
-url = git@gitcafe.com:chinesedragon/commonuseppa.git
-url = chinesedragon@gitcd.com:/commonuseppa
-$ git push all
-</code></pre>
-
-<p>this will push to all urls</p>
-
-<h3>show/hide untracked files</h3>
-
-<pre><code>$ git status -u   #show only untracked files
-$ git status -uno #don't show untracked files
-$ git config status.showuntrackedfiles no
-
-# List git-ignored files
-$ git ls-files . --ignored --exclude-standard --others
-
-# List untracked files
-$ git ls-files . --exclude-standard --others
-</code></pre>
-
-<h3>checkout single file from stash</h3>
-
-<p>  see more <a href="http://stackoverflow.com/questions/1105253/how-would-i-extract-a-single-file-or-changes-to-a-file-from-a-git-stash">here</a></p>
-
-<pre><code>$ git checkout stash@{0} -- &lt;filename&gt;
-</code></pre>
 ]]></content>
   </entry>
   

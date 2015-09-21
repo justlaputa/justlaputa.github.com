@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Tips | Coding in the Sky]]></title>
   <link href="http://laputa.io/blog/categories/tips/atom.xml" rel="self"/>
   <link href="http://laputa.io/"/>
-  <updated>2014-11-19T18:50:34+09:00</updated>
+  <updated>2015-09-21T20:30:17+09:00</updated>
   <id>http://laputa.io/</id>
   <author>
     <name><![CDATA[laputa]]></name>
@@ -12,6 +12,265 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[So, Your Gitlab Is Slow?]]></title>
+    <link href="http://laputa.io/blog/2015/09/15/so-your-gitlab-is-slow/"/>
+    <updated>2015-09-15T22:00:55+09:00</updated>
+    <id>http://laputa.io/blog/2015/09/15/so-your-gitlab-is-slow</id>
+    <content type="html"><![CDATA[<p>Our develop team use Gitlab for a long time, recently I get into some performance issues while using it. In this post, I will share our problem and some tips to investigate and improve it.</p>
+
+<h3>Problems</h3>
+
+<p>Our develop team has about 100 individual developers, mainly working on a single big repository(about 1GB). As Gitlab CE&rsquo;s <a href="http://doc.gitlab.com/ce/install/requirements.html#cpu">official document</a> suggests:</p>
+
+<blockquote><p>2GB RAM is the recommended memory size and supports up to 100 users</p></blockquote>
+
+<p>In the beginning of the project, we don&rsquo;t have so much developers, and source code is not so big. We used an EC2 <em>m3.large</em> instance(2 CPU, 7.5GB MEM), it was OK. But soon, as developers and source code size increase, we find that the Gitlab website sometimes can not response quickly, and our front Nginx returns <em>502 Bad Gateway</em>. We thought is was because our EC2 instance is not powerful enough, so we upgrade to <em>m3.xlarge</em>(4CPU, 15GB MEM), it was a quick solution and worked well for some time.</p>
+
+<p>But it does not last long, as our project is preparing to go to release cycle, and every sprint has strict deadline. Our developers tend to submit a lot of merge requests near the date of development deadline. And at that time, our Gitlab server has big problem in handling the merge request page:</p>
+
+<ul>
+<li>When developer <strong>create</strong> Merge Request, the MR page would open and Gitlab start to <strong>checking merge request</strong>, this process cost long time and sometimes it just not response with the result</li>
+<li>When developer <strong>accept</strong> Merge Request, Gitlab start the merge, and show a spinner, but it takes so long time(sometimes more than 30mins), and sometimes it just never stop</li>
+</ul>
+
+
+<p>Even though we try to upgrade to a more powerful EC2 instance, it still can not solve the problem. I started to investigate the problem from source code.</p>
+
+<h3>How Gitlab handles Merge Request</h3>
+
+<p>You can find Gitlab backend architecture from the <a href="http://doc.gitlab.com/ce/development/architecture.html#system-layout">official document</a>. The key part happens in <code>gitlab-satellites</code>.</p>
+
+<p>If login to your Gitlab server, you can find two places which stores the git repository:</p>
+
+<p><code>/home/git/repositories</code></p>
+
+<p>this is where the real git repository is stored, which is called as the <code>bare repository</code></p>
+
+<p><code>/home/git/gitlab-satellites</code></p>
+
+<p>this is a clone of the real repository from above folder. And most git operation will be happen in this <strong>satellite</strong> folder.</p>
+
+<h4>Check merge request</h4>
+
+<p>First, let&rsquo;s see how does Gitlab check if a merge request is mergeable.</p>
+
+<p>When new merge request is created, it will call this function in <a href="https://gitlab.com/gitlab-org/gitlab-ce/blob/d321305c00f934db9becac1aa9726c3e9b400df5/app/controllers/projects/merge_requests_controller.rb#L140"><code>merge_request_controller.rb</code></a>:</p>
+
+<pre><code class="ruby">def automerge_check
+  if @merge_request.unchecked?
+    @merge_request.check_if_can_be_merged
+  end
+
+  closes_issues
+
+  render partial: "projects/merge_requests/widget/show.html.haml", layout: false
+end
+</code></pre>
+
+<p>in <a href="https://gitlab.com/gitlab-org/gitlab-ce/blob/d321305c00f934db9becac1aa9726c3e9b400df5/app/models/merge_request.rb#L207"><code>merge_request.rb</code></a></p>
+
+<pre><code class="ruby">def check_if_can_be_merged
+  if Gitlab::Satellite::MergeAction.new(self.author, self).can_be_merged?
+    mark_as_mergeable
+  else
+    mark_as_unmergeable
+  end
+end
+</code></pre>
+
+<p>finally in <a href="https://gitlab.com/gitlab-org/gitlab-ce/blob/d321305c00f934db9becac1aa9726c3e9b400df5/lib/gitlab/satellite/merge_action.rb#L13"><code>merge_action.rb</code></a>:</p>
+
+<pre><code class="ruby">def can_be_merged?
+  in_locked_and_timed_satellite do |merge_repo|
+    prepare_satellite!(merge_repo)
+    merge_in_satellite!(merge_repo)
+  end
+end
+
+def merge_in_satellite!(repo, message = nil)
+  update_satellite_source_and_target!(repo)
+
+  message ||= "Merge branch '#{merge_request.source_branch}' into '#{merge_request.target_branch}'"
+
+  # merge the source branch into the satellite
+  # will raise CommandFailed when merge fails
+  repo.git.merge(default_options({ no_ff: true }), "-m#{message}", "source/#{merge_request.source_branch}")
+rescue Grit::Git::CommandFailed =&gt; ex
+  handle_exception(ex)
+end
+
+# Assumes a satellite exists that is a fresh clone of the projects repo, prepares satellite for merges, diffs etc
+def update_satellite_source_and_target!(repo)
+  repo.remote_add('source', merge_request.source_project.repository.path_to_repo)
+  repo.remote_fetch('source')
+  repo.git.checkout(default_options({ b: true }), merge_request.target_branch, "origin/#{merge_request.target_branch}")
+rescue Grit::Git::CommandFailed =&gt; ex
+  handle_exception(ex)
+end
+</code></pre>
+
+<p>As you can see. The final call is <code>merge_in_satellite!</code> method, which will run the <code>git merge</code> command in your git repository&rsquo;s satellite folder.</p>
+
+<h4>Accept Merge Request</h4>
+
+<p>When user click the <strong>Accept Merge Request</strong> button, here is what happens:</p>
+
+<p>in <a href="https://gitlab.com/gitlab-org/gitlab-ce/blob/d321305c00f934db9becac1aa9726c3e9b400df5/app/controllers/projects/merge_requests_controller.rb#L150"><code>merge_request_controller</code></a>, the <code>automerge</code> method will be called:</p>
+
+<pre><code class="ruby">def automerge
+  return access_denied! unless @merge_request.can_be_merged_by?(current_user)
+
+  if @merge_request.automergeable?
+    AutoMergeWorker.perform_async(@merge_request.id, current_user.id, params)
+    @status = true
+  else
+    @status = false
+  end
+end
+</code></pre>
+
+<p>We can find that it use an worker to perform an async task, this is a <a href="http://sidekiq.org/">Sidekiq</a> task:</p>
+
+<p><a href="https://gitlab.com/gitlab-org/gitlab-ce/blob/d321305c00f934db9becac1aa9726c3e9b400df5/app/workers/auto_merge_worker.rb#L6"><code>auto_merge_worker.rb</code></a>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">AutoMergeWorker</span>
+</span><span class='line'>  <span class="kp">include</span> <span class="no">Sidekiq</span><span class="o">::</span><span class="no">Worker</span><span class="o">&lt;</span><span class="sr">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="sr">&lt;p&gt;  sidekiq_options queue: :default&lt;/</span><span class="nb">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nb">p</span><span class="o">&gt;</span>  <span class="k">def</span> <span class="nf">perform</span><span class="p">(</span><span class="n">merge_request_id</span><span class="p">,</span> <span class="n">current_user_id</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">params</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">with_indifferent_access</span>
+</span><span class='line'>    <span class="n">current_user</span> <span class="o">=</span> <span class="no">User</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">current_user_id</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">merge_request</span> <span class="o">=</span> <span class="no">MergeRequest</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">merge_request_id</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">merge_request</span><span class="o">.</span><span class="n">should_remove_source_branch</span> <span class="o">=</span> <span class="n">params</span><span class="o">[</span><span class="ss">:should_remove_source_branch</span><span class="o">]</span>
+</span><span class='line'>    <span class="n">merge_request</span><span class="o">.</span><span class="n">automerge!</span><span class="p">(</span><span class="n">current_user</span><span class="p">,</span> <span class="n">params</span><span class="o">[</span><span class="ss">:commit_message</span><span class="o">]</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure></p>
+
+<p>and it call the <a href="https://gitlab.com/gitlab-org/gitlab-ce/blob/d321305c00f934db9becac1aa9726c3e9b400df5/app/models/merge_request.rb#L223"><code>merge_request.rb</code></a> <strong>auto_merge!</strong> method:</p>
+
+<pre><code class="ruby">def automerge!(current_user, commit_message = nil)
+  return unless automergeable?
+
+  MergeRequests::AutoMergeService.
+    new(target_project, current_user).
+    execute(self, commit_message)
+end
+</code></pre>
+
+<p>then it calls the <a href="https://gitlab.com/gitlab-org/gitlab-ce/blob/d321305c00f934db9becac1aa9726c3e9b400df5/app/services/merge_requests/auto_merge_service.rb#L8"><code>auto_merge_service.rb</code></a> <strong>execute</strong> method:</p>
+
+<pre><code class="ruby">def execute(merge_request, commit_message)
+    merge_request.lock_mr
+
+    if Gitlab::Satellite::MergeAction.new(current_user, merge_request).merge!(commit_message)
+      merge_request.merge
+
+      create_merge_event(merge_request, current_user)
+      create_note(merge_request)
+      notification_service.merge_mr(merge_request, current_user)
+      execute_hooks(merge_request, 'merge')
+
+      true
+    else
+      merge_request.unlock_mr
+      false
+    end
+....
+</code></pre>
+
+<p>Here, it use the same <code>MergeAction</code> class, but called a different method:</p>
+
+<pre><code class="ruby">def merge!(merge_commit_message = nil)
+  in_locked_and_timed_satellite do |merge_repo|
+    prepare_satellite!(merge_repo)
+    if merge_in_satellite!(merge_repo, merge_commit_message)
+      # push merge back to bare repo
+      # will raise CommandFailed when push fails
+      merge_repo.git.push(default_options, :origin, merge_request.target_branch)
+
+      # remove source branch
+      if merge_request.remove_source_branch?
+        # will raise CommandFailed when push fails
+        merge_repo.git.push(default_options, :origin, ":#{merge_request.source_branch}")
+        merge_request.source_project.repository.expire_branch_names
+      end
+      # merge, push and branch removal successful
+      true
+    end
+  end
+rescue Grit::Git::CommandFailed =&gt; ex
+  handle_exception(ex)
+end
+</code></pre>
+
+<p>Now you see, the different of <code>Accept Merge Request</code> is that it will execute the git <code>push</code> command after it merge in the satellite folder, that is absolutely what <code>Accept</code> should do.</p>
+
+<p>You may think that, the <strong>Accept</strong> process is asynchronous, <strong>Check</strong> is synchronous, so at least these two process can be done in parallel. But there is one more thing we should see, in both <code>can_be_merged?</code> and <code>merge!</code> methods, there is a <code>in_locked_and_timed_satellite</code> method, we can find the souce in <code>action.rb</code>, but the actual implementation is in <a href="https://gitlab.com/gitlab-org/gitlab-ce/blob/d321305c00f934db9becac1aa9726c3e9b400df5/lib/gitlab/satellite/satellite.rb#L59"><code>satellite.rb</code></a></p>
+
+<pre><code class="ruby"># * Locks the satellite
+# * Changes the current directory to the satellite's working dir
+# * Yields
+def lock
+  project.ensure_satellite_exists
+
+  File.open(lock_file, "w+") do |f|
+    begin
+      f.flock File::LOCK_EX
+      yield
+    ensure
+      f.flock File::LOCK_UN
+    end
+  end
+end
+</code></pre>
+
+<p>Whenever checking or accepting a merge request, it locks the satellite by <a href="http://ruby-doc.org/core-2.1.5/File.html#method-i-flock">lock</a> a file, and each satellite has a single lock file. So even the accept process is asynchronous by Sidekiq, but it has to wait for the file lock if some other check or accept process is running. This whole strategy make all <strong>check</strong> and <strong>accept</strong> process running in sequential order. So when you have many developers Create/Accept merge request at same time, all process will be running in sequential, and that&rsquo;s why you have to wait long time for your merge request.</p>
+
+<h3>The git gc</h3>
+
+<p>Besides all process is sequential, we found another problem that affects speed. I enable the git command log by edit this file:</p>
+
+<p><a href="https://gitlab.com/gitlab-org/gitlab-ce/blob/d321305c00f934db9becac1aa9726c3e9b400df5/config/initializers/3_grit_ext.rb"><code>config/initializers/3_grit_ext.rb</code></a>:</p>
+
+<pre><code class="ruby">require 'grit'
+
+Grit::Git.git_binary = Gitlab.config.git.bin_path
+Grit::Git.git_timeout = Gitlab.config.git.timeout
+Grit::Git.git_max_size = Gitlab.config.git.max_size
+Grit::debug = true
+</code></pre>
+
+<p>Then the git command detail will be logged to log file <code>unicorn_stdout.log</code>, <code>sidekiq.log</code>. We can see what&rsquo;s going on when Gitlab check or accept merge request. After I check the log file, I found that after every git merge process, it tries to run git gc:</p>
+
+<pre><code>Auto packing the repository for optimum performance. You may also
+run "git gc" manually. See "git help gc" for more information.
+warning: There are too many unreachable loose objects; run 'git prune' to remove them.
+</code></pre>
+
+<p>The reason is that, the satellite repository is used too often, and if you&rsquo;ve got a big repository, and around 100 developers working on it, it is very likely to make many loose objects, and in which case makes git think it should run <code>gc</code> to clean up. And <code>git gc</code> cost a lot of time, what&rsquo;s more, even it runs once, the next time git merge will still trigger the gc command. The reason is as the output says, we have too many loose objects in the git repository, one way to avoid this is run <code>git prune</code> with expire option:</p>
+
+<pre><code class="bash">$ git prune --expire=now
+</code></pre>
+
+<p>You can write a cron task to run this command regularly to clean up your gitlab satellite, it would avoid the <code>gc</code> process and enhance the gitlab performance.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Restore Ubuntu Grub2 After Install Windows]]></title>
@@ -303,160 +562,6 @@ C-u N C-x e -&gt; N times
 Eclipse -&gt; Xclipse
 # Save &amp;&amp; Exit
 $ sudo ldconfig
-</code></pre>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[A Simple Git Cheat Sheet and Tips]]></title>
-    <link href="http://laputa.io/blog/2012/07/11/a-simple-git-cheat-sheet-and-tips/"/>
-    <updated>2012-07-11T00:00:00+09:00</updated>
-    <id>http://laputa.io/blog/2012/07/11/a-simple-git-cheat-sheet-and-tips</id>
-    <content type="html"><![CDATA[<p>Here is a simple Git cheat sheet and I will update this when I find new ones.</p>
-
-<!--more-->
-
-
-<h2>Cheat Sheet:</h2>
-
-<h3>config:</h3>
-
-<pre><code> $ git config --global user.name "John Doe"
- $ git config --global user.email johndoe@example.com
-</code></pre>
-
-<p>   this will store your identity in <em>~/.gitconfig</em>, use <code>--system</code> to store in <em>/etc/gitconfig</em>, use <code>--local</code> to specify a per-repository configuration, which stores in <em>.git/config</em>.</p>
-
-<h3>log</h3>
-
-<pre><code>| git log                                           | view commit log                    |
-| git log -p -2                                     | show patch of last 2 commit        |
-| git log --stat                                    | show simple state                  |
-| git log --pretty=oneline                          | show in other formats              |
-| git log --graph --all --decorate --pretty=oneline | show all branch commits with graph |
-</code></pre>
-
-<h3>undo things</h3>
-
-<pre><code>| git commit --amend       | this will overwrite the last commit |
-| git reset HEAD~1         | discard last commit                 |
-| git reset HEAD filename  | unstage a file                      |
-| git checkout -- filename | undo modified file                  |
-</code></pre>
-
-<h3>remote</h3>
-
-<pre><code>| git remote -v                    | show remote repository  |
-| git remote add [shortname] [url] | add remote repository   |
-| git fetch [remote]               | fetch remote            |
-| git remote show [shortname]      | show remote infomation  |
-| git remote rename [from] [to]    | rename remote shortname |
-| git remote rm [remote]           | remove remote           |
-</code></pre>
-
-<h2>Tricks &amp; Tips</h2>
-
-<h3>clone into an existing directory</h3>
-
-<p>clone a repo into an existing directory,</p>
-
-<pre><code>$ cd PATH/YOU/WANT/TO/PUT/GIT/FILES
-$ git init
-$ git remote add origin git://remote.repo.url.path
-$ git fetch
-$ git checkout -t origin/master
-</code></pre>
-
-<p><code>fetch</code> will get all remote branches to local, but we still need the <code>checkout</code> command to switch to a specific branch,  <code>-t</code> implies <code>-b</code>, which tells git to create a local <strong>master</strong> branch and make it to track the remote master branch, which is <strong>origin/master</strong>.</p>
-
-<h3>view the history of a single file</h3>
-
-<pre><code>$ git log -p filename
-$ git whatchanged -p filename
-
-$ git log -p --follow filename
-$ git blame filename
-
-$ gitk filename
-</code></pre>
-
-<h3>checkout a single file from another branch</h3>
-
-<pre><code>$ git checkout branch_1 -- path/to/file
-</code></pre>
-
-<h3>revert to previous commit/discard current commit</h3>
-
-<p>  if you doesn&rsquo;t push your commit:</p>
-
-<pre><code>git reset --hard HEAD~1
-</code></pre>
-
-<p>  if you already push your commit:</p>
-
-<pre><code>git revert HEAD
-</code></pre>
-
-<h3>rewrite last commit message</h3>
-
-<p>  see this<a href="http://stackoverflow.com/questions/179123/how-do-i-edit-an-incorrect-commit-message-in-git">stackoverflow questions</a></p>
-
-<pre><code>git commit --amend -m "New commit message"
-</code></pre>
-
-<h3>discard all modify</h3>
-
-<pre><code>git checkout .
-</code></pre>
-
-<h3>working with remotes</h3>
-
-<p>  create remote branch</p>
-
-<pre><code>$ git push REMOTENAME BRANCHNAME
-</code></pre>
-
-<p>  delete remote branch</p>
-
-<pre><code>$ git push REMOTENAME :BRANCHNAME
-</code></pre>
-
-<p>  pushing tags</p>
-
-<pre><code>$ git push REMOTENAME TAGNAME
-$ git push REMOTENAME BRANCHNAME --tags
-</code></pre>
-
-<p>  push to multiple remotes at the same time</p>
-
-<pre><code>$ vim .git/config
-[remote "all"]
-url = git@github.com:luoshupeng/commonuseppa.git
-url = git@gitcafe.com:chinesedragon/commonuseppa.git
-url = chinesedragon@gitcd.com:/commonuseppa
-$ git push all
-</code></pre>
-
-<p>this will push to all urls</p>
-
-<h3>show/hide untracked files</h3>
-
-<pre><code>$ git status -u   #show only untracked files
-$ git status -uno #don't show untracked files
-$ git config status.showuntrackedfiles no
-
-# List git-ignored files
-$ git ls-files . --ignored --exclude-standard --others
-
-# List untracked files
-$ git ls-files . --exclude-standard --others
-</code></pre>
-
-<h3>checkout single file from stash</h3>
-
-<p>  see more <a href="http://stackoverflow.com/questions/1105253/how-would-i-extract-a-single-file-or-changes-to-a-file-from-a-git-stash">here</a></p>
-
-<pre><code>$ git checkout stash@{0} -- &lt;filename&gt;
 </code></pre>
 ]]></content>
   </entry>
