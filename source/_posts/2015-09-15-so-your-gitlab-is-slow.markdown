@@ -43,7 +43,7 @@ First, let's see how does Gitlab check if a merge request is mergeable.
 
 When new merge request is created, it will call this function in [`merge_request_controller.rb`](https://gitlab.com/gitlab-org/gitlab-ce/blob/d321305c00f934db9becac1aa9726c3e9b400df5/app/controllers/projects/merge_requests_controller.rb#L140):
 
-````ruby
+```ruby
 def automerge_check
   if @merge_request.unchecked?
     @merge_request.check_if_can_be_merged
@@ -53,11 +53,11 @@ def automerge_check
 
   render partial: "projects/merge_requests/widget/show.html.haml", layout: false
 end
-````
+```
 
 in [`merge_request.rb`](https://gitlab.com/gitlab-org/gitlab-ce/blob/d321305c00f934db9becac1aa9726c3e9b400df5/app/models/merge_request.rb#L207)
 
-````ruby
+```ruby
 def check_if_can_be_merged
   if Gitlab::Satellite::MergeAction.new(self.author, self).can_be_merged?
     mark_as_mergeable
@@ -65,11 +65,11 @@ def check_if_can_be_merged
     mark_as_unmergeable
   end
 end
-````
+```
 
 finally in [`merge_action.rb`](https://gitlab.com/gitlab-org/gitlab-ce/blob/d321305c00f934db9becac1aa9726c3e9b400df5/lib/gitlab/satellite/merge_action.rb#L13):
 
-````ruby
+```ruby
 def can_be_merged?
   in_locked_and_timed_satellite do |merge_repo|
     prepare_satellite!(merge_repo)
@@ -97,7 +97,7 @@ def update_satellite_source_and_target!(repo)
 rescue Grit::Git::CommandFailed => ex
   handle_exception(ex)
 end
-````
+```
 
 As you can see. The final call is `merge_in_satellite!` method, which will run the `git merge` command in your git repository's satellite folder.
 
@@ -106,7 +106,7 @@ When user click the **Accept Merge Request** button, here is what happens:
 
 in [`merge_request_controller`](https://gitlab.com/gitlab-org/gitlab-ce/blob/d321305c00f934db9becac1aa9726c3e9b400df5/app/controllers/projects/merge_requests_controller.rb#L150), the `automerge` method will be called:
 
-````ruby
+```ruby
 def automerge
   return access_denied! unless @merge_request.can_be_merged_by?(current_user)
 
@@ -117,12 +117,12 @@ def automerge
     @status = false
   end
 end
-````
+```
 
 We can find that it use an worker to perform an async task, this is a [Sidekiq](http://sidekiq.org/) task:
 
 [`auto_merge_worker.rb`](https://gitlab.com/gitlab-org/gitlab-ce/blob/d321305c00f934db9becac1aa9726c3e9b400df5/app/workers/auto_merge_worker.rb#L6)
-````ruby
+```ruby
 class AutoMergeWorker
   include Sidekiq::Worker
 
@@ -136,11 +136,11 @@ class AutoMergeWorker
     merge_request.automerge!(current_user, params[:commit_message])
   end
 end
-````
+```
 
 and it call the [`merge_request.rb`](https://gitlab.com/gitlab-org/gitlab-ce/blob/d321305c00f934db9becac1aa9726c3e9b400df5/app/models/merge_request.rb#L223) **auto_merge!** method:
 
-````ruby
+```ruby
 def automerge!(current_user, commit_message = nil)
   return unless automergeable?
 
@@ -148,11 +148,11 @@ def automerge!(current_user, commit_message = nil)
     new(target_project, current_user).
     execute(self, commit_message)
 end
-````
+```
 
 then it calls the [`auto_merge_service.rb`](https://gitlab.com/gitlab-org/gitlab-ce/blob/d321305c00f934db9becac1aa9726c3e9b400df5/app/services/merge_requests/auto_merge_service.rb#L8) **execute** method:
 
-````ruby
+```ruby
 def execute(merge_request, commit_message)
     merge_request.lock_mr
 
@@ -170,11 +170,11 @@ def execute(merge_request, commit_message)
       false
     end
 ....
-````
+```
 
 Here, it use the same `MergeAction` class, but called a different method:
 
-````ruby
+```ruby
 def merge!(merge_commit_message = nil)
   in_locked_and_timed_satellite do |merge_repo|
     prepare_satellite!(merge_repo)
@@ -196,13 +196,13 @@ def merge!(merge_commit_message = nil)
 rescue Grit::Git::CommandFailed => ex
   handle_exception(ex)
 end
-````
+```
 
 Now you see, the different of `Accept Merge Request` is that it will execute the git `push` command after it merge in the satellite folder, that is absolutely what `Accept` should do.
 
 You may think that, the **Accept** process is asynchronous, **Check** is synchronous, so at least these two process can be done in parallel. But there is one more thing we should see, in both `can_be_merged?` and `merge!` methods, there is a `in_locked_and_timed_satellite` method, we can find the souce in `action.rb`, but the actual implementation is in [`satellite.rb`](https://gitlab.com/gitlab-org/gitlab-ce/blob/d321305c00f934db9becac1aa9726c3e9b400df5/lib/gitlab/satellite/satellite.rb#L59)
 
-````ruby
+```ruby
 # * Locks the satellite
 # * Changes the current directory to the satellite's working dir
 # * Yields
@@ -218,7 +218,7 @@ def lock
     end
   end
 end
-````
+```
 
 Whenever checking or accepting a merge request, it locks the satellite by [lock](http://ruby-doc.org/core-2.1.5/File.html#method-i-flock) a file, and each satellite has a single lock file. So even the accept process is asynchronous by Sidekiq, but it has to wait for the file lock if some other check or accept process is running. This whole strategy make all **check** and **accept** process running in sequential order. So when you have many developers Create/Accept merge request at same time, all process will be running in sequential, and that's why you have to wait long time for your merge request.
 
@@ -228,27 +228,27 @@ Besides all process is sequential, we found another problem that affects speed. 
 
 [`config/initializers/3_grit_ext.rb`](https://gitlab.com/gitlab-org/gitlab-ce/blob/d321305c00f934db9becac1aa9726c3e9b400df5/config/initializers/3_grit_ext.rb):
 
-````ruby
+```ruby
 require 'grit'
 
 Grit::Git.git_binary = Gitlab.config.git.bin_path
 Grit::Git.git_timeout = Gitlab.config.git.timeout
 Grit::Git.git_max_size = Gitlab.config.git.max_size
 Grit::debug = true
-````
+```
 
 Then the git command detail will be logged to log file `unicorn_stdout.log`, `sidekiq.log`. We can see what's going on when Gitlab check or accept merge request. After I check the log file, I found that after every git merge process, it tries to run git gc:
 
-````
+```
 Auto packing the repository for optimum performance. You may also
 run "git gc" manually. See "git help gc" for more information.
 warning: There are too many unreachable loose objects; run 'git prune' to remove them.
-````
+```
 
 The reason is that, the satellite repository is used too often, and if you've got a big repository, and around 100 developers working on it, it is very likely to make many loose objects, and in which case makes git think it should run `gc` to clean up. And `git gc` cost a lot of time, what's more, even it runs once, the next time git merge will still trigger the gc command. The reason is as the output says, we have too many loose objects in the git repository, one way to avoid this is run `git prune` with expire option:
 
-````shell
+```bash
 $ git prune --expire=now
-````
+```
 
 You can write a cron task to run this command regularly to clean up your gitlab satellite, it would avoid the `gc` process and enhance the gitlab performance.
