@@ -4,7 +4,7 @@
   <title><![CDATA[Coding in the Sky]]></title>
   <link href="http://laputa.io/atom.xml" rel="self"/>
   <link href="http://laputa.io/"/>
-  <updated>2015-09-21T20:30:17+09:00</updated>
+  <updated>2015-09-21T20:47:27+09:00</updated>
   <id>http://laputa.io/</id>
   <author>
     <name><![CDATA[laputa]]></name>
@@ -19,6 +19,9 @@
     <updated>2015-09-15T22:00:55+09:00</updated>
     <id>http://laputa.io/blog/2015/09/15/so-your-gitlab-is-slow</id>
     <content type="html"><![CDATA[<p>Our develop team use Gitlab for a long time, recently I get into some performance issues while using it. In this post, I will share our problem and some tips to investigate and improve it.</p>
+
+<!--more-->
+
 
 <h3>Problems</h3>
 
@@ -409,72 +412,6 @@
   </entry>
   
   <entry>
-    <title type="html"><![CDATA[Start to Use Sublime Text]]></title>
-    <link href="http://laputa.io/blog/2014/11/26/start-to-use-sublime-text/"/>
-    <updated>2014-11-26T15:57:47+09:00</updated>
-    <id>http://laputa.io/blog/2014/11/26/start-to-use-sublime-text</id>
-    <content type="html"><![CDATA[<p>Recently I started to use Sublime Text as my main editor. I want to write something about my first experience of it.</p>
-
-<p>I&rsquo;m an Emacs user and I love Emacs. The direct reason that I switch to Sublime Text is this slides I read: <a href="https://speakerdeck.com/addyosmani/front-end-tooling-workflows">Front-end Tooling Workflows</a>. Yet I have been thinking about it long ago, some other reasons are:</p>
-
-<ul>
-<li>Emacs does not look cool in Mac OSX, and I always use Sublime Text at home, and Emacs at office</li>
-<li>Sublime has good UI and yet still very simple and fast!</li>
-<li>Nowadays, more and more front js plugins are developed for Sublime Text, but it is always hard to config them in Emacs</li>
-</ul>
-
-
-<p>If you are a front end developer, I recommend you to try sublime, I don&rsquo;t want to start another editor war, but try to find the best thing for your work is never bad.</p>
-
-<p>Now I&rsquo;ll share my first experience of Sublime Text, hope it helps other developers.</p>
-
-<h3>General</h3>
-
-<h4>Installation</h4>
-
-<p>The latest version is <a href="http://www.sublimetext.com/3">Sublime Text 3</a>, it is in Beta, but quite stable to use, and now most major plugins already support Sublime Text 3, so it is recommend to use this version.</p>
-
-<h4>Documents</h4>
-
-<p>Here is the official document site: <a href="http://www.sublimetext.com/docs/3/">Sublime Text 3 Doc</a>, yet it is too simple. There is also an unofficial doc site, which is also recommended by the official doc: <a href="http://docs.sublimetext.info/en/latest/index.html">Unofficial Doc</a>.</p>
-
-<p>Now you don&rsquo;t have to read the doc, the editor is quite simple and straight to use, you can refer to the doc when you want some help.</p>
-
-<h4>Most used shortcuts</h4>
-
-<p>Actually, you can find all functions from the menubar, but it is helpful to use some shortcut to save the time.</p>
-
-<p><code>Cmd + Shift + P(mac)/Ctrl + Shift + P(win,linux)</code>: Command prompt, it shows a global prompt and you can type any command, it will search throught all avaliable commands.</p>
-
-<p>[pic of command prompt]</p>
-
-<p><code>Package Control</code>: after you open the command prompt, type <em>package ins</em>, it will fuzzy search and match the <code>Package Control: Install Package</code> command, type <em>Enter</em> then you can type any package to install. It is quite simple and fast to install any package you want.</p>
-
-<h3>Front end</h3>
-
-<p>EditorConfig.sublime-package
-GitGutter.sublime-package
-JavaScriptNext - ES6 Syntax.sublime-package
-LiveStyle.sublime-package
-Markdown Extended.sublime-package
-Modific.sublime-package
-Package Control.sublime-package
-sublemacspro.sublime-package
-TrailingSpaces.sublime-package
-Schemr.sublime-package
-Themr.sublime-package</p>
-
-<h4>Useful commands</h4>
-
-<h4>Tips &amp; Tricks</h4>
-
-<h4>Tutorials</h4>
-
-<h4>References</h4>
-]]></content>
-  </entry>
-  
-  <entry>
     <title type="html"><![CDATA[Using Karma for Js Unit Testing]]></title>
     <link href="http://laputa.io/blog/2014/10/24/using-karma/"/>
     <updated>2014-10-24T10:09:48+09:00</updated>
@@ -769,15 +706,6 @@ Themr.sublime-package</p>
 <p>when run <code>grunt karma:continuous</code>, it will avoid using iframe, launch PhantomJS and output junit report for CI. while run <code>grunt karma:dev</code> will launcher Chrome for developers.</p>
 
 <p>For the full project, please take a look at my simple <a href="https://github.com/justlaputa/karma-boilerplate">Github source</a>.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Front End of the New Evernote Web Client Beta]]></title>
-    <link href="http://laputa.io/blog/2014/10/05/front-end-of-the-new-evernote-web-client-beta/"/>
-    <updated>2014-10-05T10:00:12+09:00</updated>
-    <id>http://laputa.io/blog/2014/10/05/front-end-of-the-new-evernote-web-client-beta</id>
-    <content type="html"><![CDATA[
 ]]></content>
   </entry>
   
@@ -1997,6 +1925,186 @@ valHooks: {
 </code></pre>
 
 <p>可以看到 valHooks 对 <em>select</em> 和 <em>option</em> 标签做了处理，对于 <strong>select</strong> 对象，在使用 <strong>.val()</strong> 函数时调用 <strong>get</strong> 方法，找到被选中(selected)的option，并返回 option.val()，在使用 <strong>.val(value)</strong> 函数时，调用 <strong>set</strong> 方法，找到 option 中值与 <em>value</em> 相同的，并设置其为 selected. 对 <em>option</em> 标签的 hook 也可以同样分析。</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Buy HHKB]]></title>
+    <link href="http://laputa.io/blog/2012/08/05/buy-hhkb/"/>
+    <updated>2012-08-05T00:00:00+09:00</updated>
+    <id>http://laputa.io/blog/2012/08/05/buy-hhkb</id>
+    <content type="html"><![CDATA[<h1>入HHKB</h1>
+
+<p>前两天把我的Filco 忍者87 青轴出掉了，出得还算顺利。在萌购上下单入了<a href="http://elitekeyboards.com/products.php?sub=pfu_keyboards,hhkbpro2&amp;pid=pdkb400b">HHKB</a>，小记一下第一次日本海淘的过程。</p>
+
+<!--more-->
+
+
+<ul>
+<li><em>2012-08-05</em> 萌购下单</li>
+<li><em>2012-08-05</em> 14分钟后，萌购向日本Amazon下单，等待发货（萌购反应真快）</li>
+<li><em>2012-08-06</em> Amazon.jp 发货</li>
+<li><em>2012-08-14</em> 到达萌购日本仓库，等待发货（日本物流真心慢。。）</li>
+<li><em>2012-08-15</em> 萌购发货（顺丰到付）</li>
+<li><em>2012-08-17</em> 顺丰到货</li>
+</ul>
+
+
+<p>17号没空收货，于是让顺丰推迟了一天发货，今天早上（18日）拿到键盘。</p>
+
+<p>第一次在萌购海淘，总体还算是很顺利的，前后一共12天，比在美国亚马逊海淘要快一个多星期，上一次在美国亚马逊买的东西用了20多天才到手。不过也在可接受的范围之内了，毕竟海淘就要做好耐心等待的准备么。</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Newly Install Ubuntu]]></title>
+    <link href="http://laputa.io/blog/2012/07/30/newly-install-ubuntu/"/>
+    <updated>2012-07-30T00:00:00+09:00</updated>
+    <id>http://laputa.io/blog/2012/07/30/newly-install-ubuntu</id>
+    <content type="html"><![CDATA[<h1>Replace my work environment to Ubuntu</h1>
+
+<p>Just some notes for my newly installed Ubuntu Linux configuration, use it if this helps.</p>
+
+<!--more-->
+
+
+<h2>install ubuntu and upgrade</h2>
+
+<p>I installed <a href="http://www.ubuntu.com/">Ubuntu 12.04</a> using live usb, createed by <a href="http://www.linuxliveusb.com/">LinuxLive USB Creator</a>, after install:</p>
+
+<pre><code>sudo apt-get update
+sudo apt-get upgrade
+</code></pre>
+
+<h2>System config</h2>
+
+<h3>add user to sudo</h3>
+
+<p>Don&rsquo;t know why, in Ubuntu 12.04 you should add the username at the last line, otherwise it won&rsquo;t work</p>
+
+<pre><code>sudo visudo
+# add at bottom line
+username  ALL=(ALL)NOPASSWD:ALL
+</code></pre>
+
+<h3>disable ALT key shortcut</h3>
+
+<p>Sometimes it is annoying to see the HUD window when pressing ALT key, disable like this:</p>
+
+<pre><code>Settings-&gt;keyboard-&gt;shortcuts-&gt;key to show the HUD-&gt;(press backspace to disable)
+</code></pre>
+
+<h3>disable ALT key on gnome-terminal</h3>
+
+<p>I use zsh and emacs key-binding, so I use alt key a lot, but this is bind to show Menu item in gnome-terminal, disable it like this:</p>
+
+<pre><code>Open gnome-terminal:
+Edit-&gt;Keyboard Shortcuts-&gt;Uncheck menu access keys
+</code></pre>
+
+<h3>change ubuntu tooltip color</h3>
+
+<p>By default, the tooltip window color is white-on-black, which is not so cheerful, especially when you are using Eclipse. Change the color to black-on-yellow like this:</p>
+
+<pre><code>vim /usr/share/themes/Ambiance/gtk-2.0/gtkrc
+gtk-color-scheme = "base_color:#ffffff\nfg_color:#4c4c4c\ntooltip_fg_color:#000000\nselected_bg_color:#f07746\nselected_fg_color:#FFFFFF\ntext_color:#3C3C3C\nbg_color:#F2F1F0\ntooltip_bg_color:#ffffaf\nlink_color:#DD4814"
+</code></pre>
+
+<p>Note that <code>Ambiance</code> is the default gtk color theme, if you are using other theme, edit the corresponding <code>gtkrc</code> file. Log out or restart to see the change.</p>
+
+<h3>auto hide launcher</h3>
+
+<pre><code>Settings-&gt;Appearance-&gt;Behavior-&gt;turn on auto hide
+</code></pre>
+
+<h2>Software</h2>
+
+<h3>common:</h3>
+
+<pre><code>sudo apt-get install vim emacs emacs-goodies-el zsh tmux
+## if you use zsh
+chsh -s /bin/zsh
+</code></pre>
+
+<h3>git</h3>
+
+<pre><code>sudo apt-get install git gitk
+git config --global user.name my_name
+git config --global user.email my_name@some.mail.com
+git config --global color.ui auto
+</code></pre>
+
+<p>I host my home config files on <a href="https://github.com/justlaputa">github</a>, so add this to my home directory</p>
+
+<pre><code>cd ~
+git init
+git remote add origin git@github.com:justlaputa/home-config.git
+git fetch origin
+git checkout -t origin/master
+</code></pre>
+
+<h3>maven</h3>
+
+<pre><code>sudo apt-get install maven
+</code></pre>
+
+<h3>chrome</h3>
+
+<p>Download deb file from google <a href="https://www.google.com/chrome/">official site</a>, or if you want to use unstable release, download from <a href="http://www.chromium.org/getting-involved/dev-channel/">Chrome Release Channel</a>, double click the deb file, it will be installed automatically.</p>
+
+<h3>java</h3>
+
+<p>   download from oracle <a href="http://www.oracle.com/technetwork/java/javase/downloads/index.html">jdk site</a>, see this <a href="https://help.ubuntu.com/community/Java#Oracle_.28Sun.29_Java_6">tutorial</a> to config java</p>
+
+<pre><code>sudo sh jdk-6u33-linux-i586.bin
+sudo mv jdk1.6.0_33 /usr/java
+sudo ln -s jdk1.6.0_33 default
+</code></pre>
+
+<p> config environment variable in your bash config file(or zsh profile)</p>
+
+<pre><code>vim ~/.baserc
+JAVA_HOME=/usr/java/default
+export JAVA_HOME
+</code></pre>
+
+<p> config java</p>
+
+<pre><code>sudo update-alternatives --install "/usr/bin/java" "java" "/usr/java/default/bin/java" 1
+sudo update-alternatives --config java
+(select 1)
+</code></pre>
+
+<p> do the same to <strong>javac</strong>, <strong>javasw</strong>, <strong>libjavaplugin.so</strong>, see the above link, then check java version:</p>
+
+<pre><code> java -version
+ javac -version
+</code></pre>
+
+<h3>eclipse</h3>
+
+<p> download from <a href="http://eclipse.org/downloads/">official site</a></p>
+
+<pre><code>mkdir ~/dev
+cd ~/dev
+tar xzf ~/Downloads/eclipse-jee-juno-linux-gtk.tar.gz
+</code></pre>
+
+<h4>eclipse plugins</h4>
+
+<ul>
+<li><a href="http://wiki.eclipse.org/Jetty_WTP_Plugin/Jetty_WTP_Install">jetty wtp</a></li>
+</ul>
+
+
+<h2>Other software</h2>
+
+<h3>fcitx - input method</h3>
+
+<pre><code>sudo apt-get install fcitx
+</code></pre>
+
+<p>open <strong>Input Method Swithcher</strong>, and select fcitx, re-login or restart.</p>
 ]]></content>
   </entry>
   
