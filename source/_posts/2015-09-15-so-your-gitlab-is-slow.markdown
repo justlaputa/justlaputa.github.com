@@ -9,6 +9,8 @@ tags: git,Gitlab
 
 Our develop team use Gitlab for a long time, recently I get into some performance issues while using it. In this post, I will share our problem and some tips to investigate and improve it.
 
+<!--more-->
+
 ### Problems
 
 Our develop team has about 100 individual developers, mainly working on a single big repository(about 1GB). As Gitlab CE's [official document](http://doc.gitlab.com/ce/install/requirements.html#cpu) suggests:
