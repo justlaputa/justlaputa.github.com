@@ -220,4 +220,35 @@ def lock
 end
 ````
 
-In every merge or check merge, it locks the satellite by [lock](http://ruby-doc.org/core-2.1.5/File.html#method-i-flock) the file. So even the accept process is asynchronous by Sidekiq, but it has to wait for the file lock if some other check or accept process is running. This whole strategy make all **check** and **accept** process running in sequential order. So when you have many developers Create/Accept merge request at same time, all process will be running in sequential, and that's why you have to wait long time for your merge request.
+Whenever checking or accepting a merge request, it locks the satellite by [lock](http://ruby-doc.org/core-2.1.5/File.html#method-i-flock) a file, and each satellite has a single lock file. So even the accept process is asynchronous by Sidekiq, but it has to wait for the file lock if some other check or accept process is running. This whole strategy make all **check** and **accept** process running in sequential order. So when you have many developers Create/Accept merge request at same time, all process will be running in sequential, and that's why you have to wait long time for your merge request.
+
+### The git gc
+
+Besides all process is sequential, we found another problem that affects speed. I enable the git command log by edit this file:
+
+[`config/initializers/3_grit_ext.rb`](https://gitlab.com/gitlab-org/gitlab-ce/blob/d321305c00f934db9becac1aa9726c3e9b400df5/config/initializers/3_grit_ext.rb):
+
+````ruby
+require 'grit'
+
+Grit::Git.git_binary = Gitlab.config.git.bin_path
+Grit::Git.git_timeout = Gitlab.config.git.timeout
+Grit::Git.git_max_size = Gitlab.config.git.max_size
+Grit::debug = true
+````
+
+Then the git command detail will be logged to log file `unicorn_stdout.log`, `sidekiq.log`. We can see what's going on when Gitlab check or accept merge request. After I check the log file, I found that after every git merge process, it tries to run git gc:
+
+````
+Auto packing the repository for optimum performance. You may also
+run "git gc" manually. See "git help gc" for more information.
+warning: There are too many unreachable loose objects; run 'git prune' to remove them.
+````
+
+The reason is that, the satellite repository is used too often, and if you've got a big repository, and around 100 developers working on it, it is very likely to make many loose objects, and in which case makes git think it should run `gc` to clean up. And `git gc` cost a lot of time, what's more, even it runs once, the next time git merge will still trigger the gc command. The reason is as the output says, we have too many loose objects in the git repository, one way to avoid this is run `git prune` with expire option:
+
+````shell
+$ git prune --expire=now
+````
+
+You can write a cron task to run this command regularly to clean up your gitlab satellite, it would avoid the `gc` process and enhance the gitlab performance.
